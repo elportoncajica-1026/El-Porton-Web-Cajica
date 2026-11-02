@@ -12,7 +12,7 @@
  * infladas.
  * ============================================================= */
 
-import { ETIQUETA_ESTADO, type Pedido } from '@/lib/pedidos-admin';
+import { ETIQUETA_ESTADO, estadoDe, type Pedido } from '@/lib/pedidos-admin';
 
 export const CABECERAS = ['Fecha', 'Producto', 'Categoria', 'Monto', 'Pago', 'Cliente', 'Estado'] as const;
 
@@ -43,7 +43,7 @@ export function pedidosAFilas(
         Math.round((it.unitPrice || 0) * (it.qty || 1)),
         o.payment_method || '',
         o.customer_name || '',
-        ETIQUETA_ESTADO[o.status] || o.status || '',
+        o.status ? ETIQUETA_ESTADO[estadoDe(o.status)] : '',
       ]);
     }
   }

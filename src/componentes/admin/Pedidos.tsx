@@ -21,7 +21,9 @@ import BotonesEstado from './BotonesEstado';
 import {
   ESTADOS,
   ETIQUETA_ESTADO,
+  VALORES_EN_BD,
   detallesDeLinea,
+  estadoDe,
   dinero,
   enlaceWhatsApp,
   fechaCorta,
@@ -59,7 +61,7 @@ export default function Pedidos({
       if (desde === 0) setCargando(true);
 
       let consulta = sb.from('orders').select('*', { count: 'exact' });
-      if (filtro !== 'todos') consulta = consulta.eq('status', filtro);
+      if (filtro !== 'todos') consulta = consulta.in('status', VALORES_EN_BD[filtro]);
       if (dia) {
         const r = rangoDia(dia);
         consulta = consulta.gte('created_at', r.desde.toISOString()).lt('created_at', r.hasta.toISOString());
@@ -74,7 +76,9 @@ export default function Pedidos({
         return;
       }
       setTotal(count ?? null);
-      setPedidos((prev) => (desde === 0 ? (data as Pedido[]) : [...prev, ...(data as Pedido[])]));
+      // Pedidos viejos con "preparando"/"en camino" se muestran como En sistema.
+      const filas = (data as Pedido[]).map((p) => ({ ...p, status: estadoDe(p.status) }));
+      setPedidos((prev) => (desde === 0 ? filas : [...prev, ...filas]));
     },
     [sb, filtro, dia],
   );

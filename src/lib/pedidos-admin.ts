@@ -3,19 +3,43 @@
  * ============================================================= */
 
 /* El orden es el del flujo real: así los botones se leen de izquierda a
-   derecha en el orden en que avanza un pedido. "preparando" se añadió en
-   el rediseño del panel; la columna `status` es texto libre, así que no
-   hizo falta tocar la base. */
-export const ESTADOS = ['nuevo', 'preparando', 'en_camino', 'entregado', 'cancelado'] as const;
+   derecha en el orden en que avanza un pedido.
+
+   2026-11 (pedido del cliente): los pedidos no se conectan con el POS,
+   así que "Preparando" y "En camino" no servían. Ahora el flujo es:
+   llega (Nuevo) → lo pasan al POS (En sistema) → Entregado, y Cancelado
+   aparte. La columna `status` es texto libre: no hubo que tocar la base. */
+export const ESTADOS = ['nuevo', 'en_sistema', 'entregado', 'cancelado'] as const;
 export type EstadoPedido = (typeof ESTADOS)[number];
 
 export const ETIQUETA_ESTADO: Record<EstadoPedido, string> = {
   nuevo: 'Nuevo',
-  preparando: 'Preparando',
-  en_camino: 'En camino',
+  en_sistema: 'En sistema',
   entregado: 'Entregado',
   cancelado: 'Cancelado',
 };
+
+/* Estados anteriores que aún pueden estar guardados en pedidos viejos
+   (db/estados-en-sistema.sql los convierte). Si un pedido estaba
+   preparándose o en camino, es que ya lo habían cargado: En sistema. */
+const ESTADOS_ANTIGUOS: Record<string, EstadoPedido> = {
+  preparando: 'en_sistema',
+  en_camino: 'en_sistema',
+};
+
+/** Valores guardados en la base que corresponden a cada estado (para filtrar). */
+export const VALORES_EN_BD: Record<EstadoPedido, string[]> = {
+  nuevo: ['nuevo'],
+  en_sistema: ['en_sistema', ...Object.keys(ESTADOS_ANTIGUOS)],
+  entregado: ['entregado'],
+  cancelado: ['cancelado'],
+};
+
+/** Lleva cualquier valor guardado al estado actual (los antiguos, a "En sistema"). */
+export function estadoDe(valor: string): EstadoPedido {
+  if (esEstadoValido(valor)) return valor;
+  return ESTADOS_ANTIGUOS[valor] ?? 'nuevo';
+}
 
 export type LineaPedidoGuardada = {
   id?: string;

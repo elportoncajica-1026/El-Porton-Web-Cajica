@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   ESTADOS,
   ETIQUETA_ESTADO,
+  VALORES_EN_BD,
+  estadoDe,
   detallesDeLinea,
   dinero,
   enlaceWhatsApp,
@@ -18,8 +20,20 @@ const linea = (o: Partial<LineaPedidoGuardada> = {}): LineaPedidoGuardada => ({
 
 /* ------------------------------------------------------------------ */
 describe('estados del pedido', () => {
-  it('son los cuatro de v1, en orden', () => {
-    expect(ESTADOS).toEqual(['nuevo', 'preparando', 'en_camino', 'entregado', 'cancelado']);
+  it('son los del flujo con el POS, en orden', () => {
+    expect(ESTADOS).toEqual(['nuevo', 'en_sistema', 'entregado', 'cancelado']);
+  });
+
+  it('los estados antiguos se leen como "En sistema"', () => {
+    expect(estadoDe('preparando')).toBe('en_sistema');
+    expect(estadoDe('en_camino')).toBe('en_sistema');
+    expect(estadoDe('entregado')).toBe('entregado');
+    expect(estadoDe('en_sistema')).toBe('en_sistema');
+  });
+
+  it('el filtro de "En sistema" incluye los pedidos con estado antiguo', () => {
+    expect(VALORES_EN_BD.en_sistema).toEqual(['en_sistema', 'preparando', 'en_camino']);
+    expect(VALORES_EN_BD.nuevo).toEqual(['nuevo']);
   });
 
   it('todos tienen etiqueta legible', () => {
@@ -28,7 +42,7 @@ describe('estados del pedido', () => {
 
   it('reconoce los válidos y rechaza cualquier otro', () => {
     for (const e of ESTADOS) expect(esEstadoValido(e)).toBe(true);
-    for (const e of ['', 'listo', 'NUEVO', 'entregada']) expect(esEstadoValido(e)).toBe(false);
+    for (const e of ['', 'listo', 'NUEVO', 'entregada', 'preparando', 'en_camino']) expect(esEstadoValido(e)).toBe(false);
   });
 });
 

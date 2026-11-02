@@ -259,6 +259,7 @@
   white-space: nowrap;
 }
 .pn-pill--nuevo, .st-nuevo { background: rgba(229, 62, 62, 0.18); color: #fca5a5; }
+.pn-pill--en_sistema, .st-en_sistema { background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
 .pn-pill--preparando, .st-preparando { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
 .pn-pill--en_camino, .st-en_camino { background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
 .pn-pill--entregado, .st-entregado { background: rgba(34, 197, 94, 0.16); color: #86efac; }
@@ -351,6 +352,7 @@
 .pn-estado--aparte { margin-left: auto; background: none; }
 .pn-estado.is-activo { color: #fff; }
 .pn-estado--nuevo.is-activo { background: var(--rojo); border-color: var(--rojo); }
+.pn-estado--en_sistema.is-activo { background: #2563eb; border-color: #2563eb; }
 .pn-estado--preparando.is-activo { background: #d97706; border-color: #d97706; }
 .pn-estado--en_camino.is-activo { background: #2563eb; border-color: #2563eb; }
 .pn-estado--entregado.is-activo { background: #16a34a; border-color: #16a34a; }

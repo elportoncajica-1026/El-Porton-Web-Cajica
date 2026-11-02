@@ -4,7 +4,7 @@
  * BOTONES DE ESTADO DEL PEDIDO
  *
  * Reemplazan al desplegable: un toque y listo, en el orden en que avanza
- * un pedido (nuevo → preparando → en camino → entregado). "Cancelar" va
+ * un pedido (nuevo → en sistema → entregado). "Cancelar" va
  * aparte y con otro aspecto, para no tocarlo por accidente.
  * ============================================================= */
 

@@ -22,7 +22,7 @@ import { supabaseNavegador } from '@/lib/supabase-navegador';
 import { MENU } from '@/data/menu';
 import { CONTACTO } from '@/data/portada';
 import { estadoEn } from '@/lib/horario';
-import { dinero, ETIQUETA_ESTADO, type EstadoPedido, type Pedido } from '@/lib/pedidos-admin';
+import { dinero, ETIQUETA_ESTADO, estadoDe, type Pedido } from '@/lib/pedidos-admin';
 import { coordX, coordY, escalaY, formatoCorto, marcasY, rutaArea, rutaLinea, type FilaTop, type Marco, type PuntoSerie } from '@/lib/ventas';
 import { diaAnterior, fechaBogota, haceCuanto, rangoDia, resumenDia, variacion, type ResumenDia } from '@/lib/panel';
 import ExportarCSV from './ExportarCSV';
@@ -225,7 +225,7 @@ export default function Resumen({
                       </td>
                       <td>{dinero(p.subtotal)}</td>
                       <td>
-                        <span className={`pn-pill pn-pill--${p.status}`}>{ETIQUETA_ESTADO[p.status as EstadoPedido] ?? p.status}</span>
+                        <span className={`pn-pill pn-pill--${estadoDe(p.status)}`}>{ETIQUETA_ESTADO[estadoDe(p.status)]}</span>
                       </td>
                       <td className="pn-tenue">
                         {new Date(p.created_at).toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: 'numeric', minute: '2-digit' })}

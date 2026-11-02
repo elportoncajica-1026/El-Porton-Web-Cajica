@@ -24,6 +24,7 @@ import {
   detallesDeLinea,
   dinero,
   enlaceWhatsApp,
+  estadoDe,
   fechaCorta,
   type Pedido,
 } from '@/lib/pedidos-admin';
@@ -151,7 +152,7 @@ export default function HistorialPedidos({ recargarToken }: { recargarToken: num
                       {unidades(p)} {unidades(p) === 1 ? 'producto' : 'productos'}
                     </small>
                   </span>
-                  <span className={`badge-status st-${p.status}`}>{ETIQUETA_ESTADO[p.status] ?? p.status}</span>
+                  <span className={`badge-status st-${estadoDe(p.status)}`}>{ETIQUETA_ESTADO[estadoDe(p.status)]}</span>
                   <span className="hp-total">{dinero(p.subtotal)}</span>
                   <span className="hp-flecha" aria-hidden="true">›</span>
                 </button>
@@ -203,7 +204,7 @@ function DetallePedido({ pedido: p, alCerrar }: { pedido: Pedido; alCerrar: () =
 
         <div className="mm-body">
           <div className="hp-detalle-estado">
-            <span className={`badge-status st-${p.status}`}>{ETIQUETA_ESTADO[p.status] ?? p.status}</span>
+            <span className={`badge-status st-${estadoDe(p.status)}`}>{ETIQUETA_ESTADO[estadoDe(p.status)]}</span>
             <small>Pedido #{p.id.slice(0, 8)}</small>
           </div>
 

@@ -23,7 +23,7 @@ create table if not exists public.orders (
   cash_change      text,
   subtotal         integer not null default 0,
   items            jsonb not null default '[]',
-  status           text not null default 'nuevo'   -- nuevo | en_camino | entregado | cancelado
+  status           text not null default 'nuevo'   -- nuevo | en_sistema | entregado | cancelado
 );
 
 -- ---------- Tabla de EVENTOS (embudo/analítica) ----------
