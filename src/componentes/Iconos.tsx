@@ -193,6 +193,18 @@ const VARIOS = {
       <path d="M10 20.5a2 2 0 0 0 4 0" />
     </>
   ),
+  sonido: (
+    <>
+      <path d="M4 9.5h3l5-4v13l-5-4H4z" />
+      <path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11" />
+    </>
+  ),
+  silencio: (
+    <>
+      <path d="M4 9.5h3l5-4v13l-5-4H4z" />
+      <path d="M16 9.5l5 5M21 9.5l-5 5" />
+    </>
+  ),
   hamburguesaMenu: <path d="M4 7h16M4 12h16M4 17h16" />,
   cuadricula: (
     <>

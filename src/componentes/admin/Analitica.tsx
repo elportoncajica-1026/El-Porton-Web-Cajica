@@ -26,6 +26,7 @@ import { fechaBogota } from '@/lib/panel';
 import Ventas from './Ventas';
 import VentasDia from './VentasDia';
 import SelectorDia from './SelectorDia';
+import HistorialPedidos from './HistorialPedidos';
 import Visitas from './Visitas';
 import ExportarCSV from './ExportarCSV';
 
@@ -163,6 +164,11 @@ export default function Analitica({
         ) : (
           <Ventas gran={gran} tabla={tabla} recargarToken={recargarToken} />
         )}
+      </div>
+
+      <div className="panel-box">
+        <h3>Historial de pedidos</h3>
+        <HistorialPedidos recargarToken={recargarToken} />
       </div>
 
       {incluirVisitas && (

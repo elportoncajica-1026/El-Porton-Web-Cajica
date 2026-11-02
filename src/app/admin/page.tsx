@@ -18,11 +18,15 @@
  * interactivos que había antes).
  * ============================================================= */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSesionAdmin } from '@/estado/sesion-admin';
 import { supabaseNavegador } from '@/lib/supabase-navegador';
 import { estadoEn } from '@/lib/horario';
 import { fechaLarga } from '@/lib/panel';
+import { dinero } from '@/lib/pedidos-admin';
+import { tituloConAviso } from '@/lib/vigia-pedidos';
+import { desbloquearSonido, sonidoDisponible, tocarCampana } from '@/lib/campana';
+import { useVigiaPedidos, type PedidoLlegado } from '@/estado/vigia-pedidos';
 import { Login, RetoMFA } from '@/componentes/admin/Acceso';
 import Pedidos from '@/componentes/admin/Pedidos';
 import Analitica from '@/componentes/admin/Analitica';
@@ -91,6 +95,101 @@ export default function PanelAdmin() {
     };
   }, [estado, recargarToken, contadorToken]);
 
+  /* ---------- Pedidos en vivo: campana, aviso y notificación ----------
+     El vigía consulta cada 10 s (estado/vigia-pedidos.ts). Al llegar un
+     pedido se refrescan solos el contador y la sección abierta. */
+  const [sonido, setSonido] = useState(() => {
+    try {
+      return localStorage.getItem('panel-sonido') !== 'no';
+    } catch {
+      return true;
+    }
+  });
+  const [sonidoBloqueado, setSonidoBloqueado] = useState(false);
+  const [avisos, setAvisos] = useState<PedidoLlegado[]>([]);
+  const tituloBase = useRef<string | null>(null);
+
+  useVigiaPedidos(estado === 'dentro', (llegados) => {
+    setContadorToken((n) => n + 1);
+    if (seccion === 'inicio' || seccion === 'pedidos' || seccion === 'ventas') setRecargar((n) => n + 1);
+    setAvisos((previos) => [...[...llegados].reverse(), ...previos].slice(0, 3));
+
+    if (sonido) {
+      if (sonidoDisponible()) tocarCampana();
+      else setSonidoBloqueado(true);
+    }
+
+    // Con la pestaña en segundo plano, además, notificación del sistema.
+    const ultimo = llegados[llegados.length - 1];
+    if (document.visibilityState !== 'visible' && 'Notification' in window && Notification.permission === 'granted') {
+      try {
+        const n = new Notification(
+          llegados.length > 1 ? `${llegados.length} pedidos nuevos · El Portón` : 'Nuevo pedido · El Portón',
+          { body: `${ultimo.customer_name} · ${dinero(ultimo.subtotal)}`, icon: '/assets/favicon-512.png', tag: ultimo.id },
+        );
+        n.onclick = () => {
+          window.focus();
+          setSeccion('pedidos');
+          setAvisos([]);
+          n.close();
+        };
+      } catch {
+        /* algunos navegadores solo notifican desde un service worker */
+      }
+    }
+  });
+
+  // El navegador no deja sonar hasta el primer toque: se habilita ahí.
+  useEffect(() => {
+    if (estado !== 'dentro') return;
+    const habilitar = () => {
+      void desbloquearSonido().then((ok) => setSonidoBloqueado(!ok));
+    };
+    window.addEventListener('pointerdown', habilitar);
+    window.addEventListener('keydown', habilitar);
+    return () => {
+      window.removeEventListener('pointerdown', habilitar);
+      window.removeEventListener('keydown', habilitar);
+    };
+  }, [estado]);
+
+  // "(2) Nuevo pedido · Panel…" en la pestaña mientras haya pedidos sin atender.
+  // Next puede restaurar el <title> de la página por su cuenta: si lo cambia,
+  // se vuelve a poner el aviso (el observador solo actúa si el texto difiere).
+  useEffect(() => {
+    if (estado !== 'dentro') return;
+    if (tituloBase.current === null) tituloBase.current = document.title.replace(/^\(\d+\) Nuevo pedido · /, '');
+    const deseado = tituloConAviso(tituloBase.current, nuevos ?? 0);
+    const aplicar = () => {
+      if (document.title !== deseado) document.title = deseado;
+    };
+    aplicar();
+    const vigia = new MutationObserver(aplicar);
+    vigia.observe(document.head, { childList: true, subtree: true, characterData: true });
+    return () => vigia.disconnect();
+  }, [estado, nuevos]);
+
+  async function alternarSonido() {
+    const activar = !sonido;
+    setSonido(activar);
+    try {
+      localStorage.setItem('panel-sonido', activar ? 'si' : 'no');
+    } catch {
+      /* sin almacenamiento: vale solo para esta visita */
+    }
+    if (!activar) return;
+    const ok = await desbloquearSonido();
+    setSonidoBloqueado(!ok);
+    if (ok) tocarCampana(); // prueba: así saben cómo suena
+    if ('Notification' in window && Notification.permission === 'default') {
+      try {
+        await Notification.requestPermission();
+      } catch {
+        /* el navegador no permite pedirlo */
+      }
+    }
+  }
+
   if (estado === 'cargando') {
     return (
       <>
@@ -118,6 +217,7 @@ export default function PanelAdmin() {
   }
 
   function ir(s: Seccion) {
+    if (s === 'pedidos') setAvisos([]);
     setCreandoProducto(false);
     setSeccion(s);
     setLateralAbierto(false);
@@ -215,6 +315,22 @@ export default function PanelAdmin() {
             </button>
             <button
               type="button"
+              className={`pn-icono-btn pn-sonido${sonido && sonidoBloqueado ? ' is-bloqueado' : ''}`}
+              aria-pressed={sonido}
+              aria-label={sonido ? 'Sonido de pedidos activado' : 'Sonido de pedidos apagado'}
+              title={
+                !sonido
+                  ? 'Sonido de pedidos apagado'
+                  : sonidoBloqueado
+                    ? 'Toca la pantalla para activar el sonido'
+                    : 'Sonido de pedidos activado'
+              }
+              onClick={() => void alternarSonido()}
+            >
+              <Icono nombre={sonido ? 'sonido' : 'silencio'} size={20} />
+            </button>
+            <button
+              type="button"
               className="pn-icono-btn pn-campana"
               aria-label={nuevos ? `${nuevos} pedidos nuevos` : 'Sin pedidos nuevos'}
               title="Pedidos nuevos"
@@ -264,6 +380,34 @@ export default function PanelAdmin() {
             )}
           </main>
         </div>
+
+        {/* Aviso de pedido nuevo: queda hasta que lo atiendan (máx. 3). */}
+        {avisos.length > 0 && (
+          <div className="pn-avisos" role="status" aria-live="assertive">
+            {avisos.map((a) => (
+              <div className="pn-aviso" key={a.id}>
+                <span className="pn-aviso-icono" aria-hidden="true">
+                  <Icono nombre="campana" size={20} />
+                </span>
+                <button type="button" className="pn-aviso-cuerpo" onClick={() => ir('pedidos')}>
+                  <b>Nuevo pedido</b>
+                  <span>
+                    {a.customer_name} · {dinero(a.subtotal)}
+                  </span>
+                  {sonido && sonidoBloqueado && <small>Toca la pantalla para activar el sonido</small>}
+                </button>
+                <button
+                  type="button"
+                  className="pn-aviso-cerrar"
+                  aria-label="Cerrar aviso"
+                  onClick={() => setAvisos((v) => v.filter((x) => x.id !== a.id))}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {seguridadAbierta && <ModalSeguridad alCerrar={() => setSeguridadAbierta(false)} />}
       </div>
