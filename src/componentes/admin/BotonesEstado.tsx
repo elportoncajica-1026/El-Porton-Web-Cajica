@@ -42,7 +42,7 @@ export default function BotonesEstado({
         disabled={deshabilitado}
         onClick={() => actual !== 'cancelado' && onCambiar('cancelado')}
       >
-        {actual === 'cancelado' ? 'Cancelado' : 'Cancelar'}
+        Cancelado
       </button>
     </div>
   );
