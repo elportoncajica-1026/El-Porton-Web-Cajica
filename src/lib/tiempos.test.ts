@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TIEMPOS_POR_DEFECTO, erroresTiempos, normalizarTiempos, textoRango } from './tiempos';
+import { TIEMPOS_POR_DEFECTO, erroresTiempos, normalizarTiempos, textoAviso, textoRango } from './tiempos';
 
 describe('normalizarTiempos', () => {
   it('sin nada guardado usa los de por defecto (40–50 domicilio, 15–20 los demás)', () => {
@@ -36,5 +36,18 @@ describe('textoRango', () => {
   it('se lee natural', () => {
     expect(textoRango({ min: 15, max: 20 })).toBe('15 a 20 minutos');
     expect(textoRango({ min: 30, max: 30 })).toBe('30 minutos');
+  });
+});
+
+describe('textoAviso', () => {
+  it('rango: dice "aprox."', () => {
+    expect(Object.values(textoAviso('domicilio', { min: 40, max: 50 })).join('')).toBe(
+      'Tu domicilio llega en 40 a 50 minutos aprox. después de confirmarlo por WhatsApp.',
+    );
+  });
+  it('exacto: sin "aprox."', () => {
+    expect(Object.values(textoAviso('recoger', { min: 15, max: 15 })).join('')).toBe(
+      'Tu pedido estará listo en 15 minutos después de confirmarlo por WhatsApp.',
+    );
   });
 });

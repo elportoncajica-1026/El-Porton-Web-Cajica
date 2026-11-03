@@ -15,22 +15,23 @@
 import { useEffect, useState } from 'react';
 import { supabaseNavegador } from '@/lib/supabase-navegador';
 import { TIPO_PEDIDO, TIPOS_PEDIDO, type TipoPedido } from '@/lib/tipo-pedido';
-import { TIEMPOS_POR_DEFECTO, erroresTiempos, normalizarTiempos, textoRango, MINUTOS_MAX, MINUTOS_MIN } from '@/lib/tiempos';
+import { TIEMPOS_POR_DEFECTO, erroresTiempos, esExacto, normalizarTiempos, textoAviso, MINUTOS_MAX, MINUTOS_MIN, type Tiempos as TiemposT } from '@/lib/tiempos';
 
 type Borrador = Record<TipoPedido, { min: string; max: string }>;
+/** "rango" = de X a Y minutos · "exacto" = un solo número (se guarda con mínimo = máximo). */
+type Modo = 'rango' | 'exacto';
+type Modos = Record<TipoPedido, Modo>;
 
-const aBorrador = (t: typeof TIEMPOS_POR_DEFECTO): Borrador =>
+const aBorrador = (t: TiemposT): Borrador =>
   Object.fromEntries(TIPOS_PEDIDO.map((k) => [k, { min: String(t[k].min), max: String(t[k].max) }])) as Borrador;
 
-const AVISO: Record<TipoPedido, (r: string) => string> = {
-  domicilio: (r) => `Tu domicilio llega en ${r} aprox. después de confirmarlo por WhatsApp.`,
-  recoger: (r) => `Tu pedido estará listo en ${r} aprox. después de confirmarlo por WhatsApp.`,
-  restaurante: (r) => `Tu pedido estará listo en ${r} aprox. después de confirmarlo por WhatsApp.`,
-};
+const aModos = (t: TiemposT): Modos =>
+  Object.fromEntries(TIPOS_PEDIDO.map((k) => [k, esExacto(t[k]) ? 'exacto' : 'rango'])) as Modos;
 
 export default function Tiempos({ recargarToken }: { recargarToken: number }) {
   const sb = supabaseNavegador();
   const [borrador, setBorrador] = useState<Borrador | null>(null);
+  const [modos, setModos] = useState<Modos>(() => aModos(TIEMPOS_POR_DEFECTO));
   const [falta, setFalta] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<{ ok: boolean; texto: string } | null>(null);
@@ -43,7 +44,9 @@ export default function Tiempos({ recargarToken }: { recargarToken: number }) {
       // Tabla inexistente: el código de Postgres es 42P01 (o PostgREST avisa que no está en el esquema).
       const noExiste = !!error && (error.code === '42P01' || error.code === 'PGRST205' || /does not exist|schema cache/i.test(error.message));
       setFalta(noExiste);
-      setBorrador(aBorrador(normalizarTiempos(error ? null : data?.valor)));
+      const t = normalizarTiempos(error ? null : data?.valor);
+      setBorrador(aBorrador(t));
+      setModos(aModos(t));
     })();
     return () => {
       vigente = false;
@@ -54,9 +57,23 @@ export default function Tiempos({ recargarToken }: { recargarToken: number }) {
 
   const errores = erroresTiempos(borrador);
 
-  function cambiar(tipo: TipoPedido, campo: 'min' | 'max', valor: string) {
+  function cambiar(tipo: TipoPedido, campo: 'min' | 'max' | 'ambos', valor: string) {
     setMensaje(null);
-    setBorrador((b) => (b ? { ...b, [tipo]: { ...b[tipo], [campo]: valor.replace(/\D/g, '').slice(0, 3) } } : b));
+    const v = valor.replace(/\D/g, '').slice(0, 3);
+    const nuevo = campo === 'ambos' ? { min: v, max: v } : { [campo]: v };
+    setBorrador((b) => (b ? { ...b, [tipo]: { ...b[tipo], ...nuevo } } : b));
+  }
+
+  /** Al pasar a "Exacto" se queda con el máximo; al volver a "Rango", el mínimo baja 5 minutos. */
+  function cambiarModo(tipo: TipoPedido, modo: Modo) {
+    if (!borrador || modos[tipo] === modo) return;
+    setMensaje(null);
+    setModos((m) => ({ ...m, [tipo]: modo }));
+    const { min, max } = borrador[tipo];
+    if (modo === 'exacto') cambiar(tipo, 'ambos', max);
+    else if (min === max && Number(max) > MINUTOS_MIN) {
+      setBorrador((b) => (b ? { ...b, [tipo]: { min: String(Math.max(MINUTOS_MIN, Number(max) - 5)), max } } : b));
+    }
   }
 
   async function guardar() {
@@ -77,7 +94,7 @@ export default function Tiempos({ recargarToken }: { recargarToken: number }) {
   return (
     <div className="panel-box">
       <h3>Tiempos de entrega</h3>
-      <p className="tp-intro">Lo que el carrito le dice al cliente según cómo pida. Escribe los minutos aproximados.</p>
+      <p className="tp-intro">Lo que el carrito le dice al cliente según cómo pida. Elige un rango (de 40 a 50 min) o un tiempo exacto (40 min).</p>
 
       {falta && (
         <p className="login-error">
@@ -96,19 +113,35 @@ export default function Tiempos({ recargarToken }: { recargarToken: number }) {
                 <span aria-hidden="true">{TIPO_PEDIDO[tipo].icono}</span> {TIPO_PEDIDO[tipo].etiqueta}
               </div>
               <div className="tp-campos">
-                <label>
-                  <span>De</span>
-                  <input inputMode="numeric" value={r.min} onChange={(e) => cambiar(tipo, 'min', e.target.value)} aria-label={`${TIPO_PEDIDO[tipo].etiqueta}: mínimo de minutos`} />
-                </label>
-                <label>
-                  <span>a</span>
-                  <input inputMode="numeric" value={r.max} onChange={(e) => cambiar(tipo, 'max', e.target.value)} aria-label={`${TIPO_PEDIDO[tipo].etiqueta}: máximo de minutos`} />
-                </label>
+                <div className="tp-modo" role="group" aria-label={`${TIPO_PEDIDO[tipo].etiqueta}: tipo de tiempo`}>
+                  {(['rango', 'exacto'] as const).map((m) => (
+                    <button key={m} type="button" className={modos[tipo] === m ? 'is-on' : ''} aria-pressed={modos[tipo] === m} onClick={() => cambiarModo(tipo, m)}>
+                      {m === 'rango' ? 'Rango' : 'Exacto'}
+                    </button>
+                  ))}
+                </div>
+                {modos[tipo] === 'exacto' ? (
+                  <label>
+                    <span>En</span>
+                    <input inputMode="numeric" value={r.max} onChange={(e) => cambiar(tipo, 'ambos', e.target.value)} aria-label={`${TIPO_PEDIDO[tipo].etiqueta}: minutos`} />
+                  </label>
+                ) : (
+                  <>
+                    <label>
+                      <span>De</span>
+                      <input inputMode="numeric" value={r.min} onChange={(e) => cambiar(tipo, 'min', e.target.value)} aria-label={`${TIPO_PEDIDO[tipo].etiqueta}: mínimo de minutos`} />
+                    </label>
+                    <label>
+                      <span>a</span>
+                      <input inputMode="numeric" value={r.max} onChange={(e) => cambiar(tipo, 'max', e.target.value)} aria-label={`${TIPO_PEDIDO[tipo].etiqueta}: máximo de minutos`} />
+                    </label>
+                  </>
+                )}
                 <span className="tp-min">min</span>
               </div>
               <p className="tp-vista">
                 {valido ? (
-                  <>⏱️ {AVISO[tipo](textoRango({ min: Number(r.min), max: Number(r.max) }))}</>
+                  <>⏱️ {Object.values(textoAviso(tipo, { min: Number(r.min), max: Number(r.max) })).join('')}</>
                 ) : (
                   <span className="tp-mal">Revisa los minutos ({MINUTOS_MIN} a {MINUTOS_MAX}, el primero menor o igual).</span>
                 )}
@@ -122,7 +155,7 @@ export default function Tiempos({ recargarToken }: { recargarToken: number }) {
       {mensaje && <p className={mensaje.ok ? 'tp-ok' : 'login-error'}>{mensaje.texto}</p>}
 
       <div className="tp-acciones">
-        <button type="button" className="btn-ghost" onClick={() => { setBorrador(aBorrador(TIEMPOS_POR_DEFECTO)); setMensaje(null); }}>
+        <button type="button" className="btn-ghost" onClick={() => { setBorrador(aBorrador(TIEMPOS_POR_DEFECTO)); setModos(aModos(TIEMPOS_POR_DEFECTO)); setMensaje(null); }}>
           Volver a los de por defecto
         </button>
         <button type="button" className="btn-primary" disabled={guardando || errores.length > 0} onClick={() => void guardar()}>

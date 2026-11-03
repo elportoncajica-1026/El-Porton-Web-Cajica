@@ -25,7 +25,7 @@ import { camposIncompletos, detallesDe, formatearMiles, leerFormulario } from '@
 import { construirMensaje, urlWhatsApp, type LineaPedido } from '@/lib/whatsapp';
 import { registrarEvento } from '@/lib/rastreo-navegador';
 import { TIPO_PEDIDO, TIPOS_PEDIDO } from '@/lib/tipo-pedido';
-import { TIEMPOS_POR_DEFECTO, textoRango, type Tiempos } from '@/lib/tiempos';
+import { TIEMPOS_POR_DEFECTO, textoAviso, type Tiempos } from '@/lib/tiempos';
 import { CONTACTO } from '@/data/portada';
 
 const fmt = (n: number) => '$' + n.toLocaleString('es-CO');
@@ -92,6 +92,7 @@ export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: T
   const faltanCampos = camposIncompletos(datos);
   const tipo = datos.tipo ?? 'domicilio';
   const aDomicilio = tipo === 'domicilio';
+  const avisoTiempo = textoAviso(tipo, tiempos[tipo]);
 
   async function enviar() {
     setIntento(true);
@@ -391,9 +392,9 @@ export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: T
             </div>
             {/* Cuánto tarda (editable en el panel → Tiempos). */}
             <p className="cart-aviso-tiempo">
-              ⏱️{' '}
-              {aDomicilio ? 'Tu domicilio llega en ' : 'Tu pedido estará listo en '}
-              <strong>{textoRango(tiempos[tipo])}</strong> aprox. después de confirmarlo por WhatsApp.
+              ⏱️ {avisoTiempo.inicio}
+              <strong>{avisoTiempo.tiempo}</strong>
+              {avisoTiempo.fin}
             </p>
             {aDomicilio && (
               <p className="cart-aviso-domicilio">

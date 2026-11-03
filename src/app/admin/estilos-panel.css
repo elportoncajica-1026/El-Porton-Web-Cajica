@@ -859,3 +859,8 @@
 @media (max-width: 760px) {
   .tp-fila { grid-template-columns: 1fr; }
 }
+
+.tp-modo { display: inline-flex; padding: 3px; border-radius: 9px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); margin-right: 0.4rem; }
+.tp-modo button { border: 0; background: none; color: #a1a1aa; font: inherit; font-size: 0.8rem; font-weight: 600; padding: 0.35rem 0.7rem; border-radius: 6px; cursor: pointer; }
+.tp-modo button.is-on { background: #e53e3e; color: #fff; }
+.tp-campos { flex-wrap: wrap; }

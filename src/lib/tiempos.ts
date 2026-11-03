@@ -59,7 +59,23 @@ export function normalizarTiempos(crudo: unknown): Tiempos {
   return out;
 }
 
+/** Tiempo exacto: mínimo y máximo iguales (en el panel, modo "Exacto"). */
+export const esExacto = (r: Rango): boolean => r.min === r.max;
+
 /** "15 a 20 minutos" · "20 minutos" (si mínimo y máximo coinciden). */
 export function textoRango(r: Rango): string {
-  return r.min === r.max ? `${r.max} minutos` : `${r.min} a ${r.max} minutos`;
+  return esExacto(r) ? `${r.max} minutos` : `${r.min} a ${r.max} minutos`;
+}
+
+/**
+ * El aviso del carrito en tres partes (el tiempo va resaltado):
+ * "Tu domicilio llega en | 40 a 50 minutos | aprox. después de…".
+ * Con un tiempo exacto no dice "aprox.".
+ */
+export function textoAviso(tipo: TipoPedido, r: Rango): { inicio: string; tiempo: string; fin: string } {
+  return {
+    inicio: tipo === 'domicilio' ? 'Tu domicilio llega en ' : 'Tu pedido estará listo en ',
+    tiempo: textoRango(r),
+    fin: `${esExacto(r) ? '' : ' aprox.'} después de confirmarlo por WhatsApp.`,
+  };
 }
