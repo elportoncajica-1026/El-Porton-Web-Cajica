@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { obtenerMenu } from '@/lib/menu-servidor';
 import { validarPedido } from '@/lib/precio';
+import { direccionAGuardar, esTipoPedido } from '@/lib/tipo-pedido';
 import { supabaseRest } from '@/lib/supabase';
 import {
   crearLimitador,
@@ -135,11 +136,14 @@ export async function POST(req: Request) {
   }
   if (!limitadorIp.permitir(ipDe(req.headers))) return rechazoPorExceso();
 
-  /* ---------- 2. datos de despacho ---------- */
+  /* ---------- 2. datos de despacho ----------
+     Recoger y comer en el restaurante no llevan dirección: en
+     customer_address se guarda la frase de lib/tipo-pedido.ts. */
+  const tipo = esTipoPedido(cuerpo.tipo) ? cuerpo.tipo : 'domicilio';
   const cliente = {
     customer_name: limpiar(cuerpo.nombre, MAX_TEXTO),
     customer_phone: limpiar(cuerpo.telefono, MAX_TEXTO),
-    customer_address: limpiar(cuerpo.direccion, MAX_TEXTO),
+    customer_address: direccionAGuardar(tipo, limpiar(cuerpo.direccion, MAX_TEXTO), limpiar(cuerpo.hora, 10)),
     payment_method: limpiar(cuerpo.pago, MAX_TEXTO) || null,
     cash_change: limpiar(cuerpo.cambio, MAX_TEXTO) || null,
   };

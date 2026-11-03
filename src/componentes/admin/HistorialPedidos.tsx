@@ -30,6 +30,7 @@ import {
 } from '@/lib/pedidos-admin';
 import { rangoDia } from '@/lib/panel';
 import SelectorDia from './SelectorDia';
+import { TIPO_PEDIDO, tipoDeDireccion } from '@/lib/tipo-pedido';
 
 const POR_PAGINA = 25;
 
@@ -149,6 +150,7 @@ export default function HistorialPedidos({ recargarToken }: { recargarToken: num
                   <span className="hp-cliente">
                     <b>{p.customer_name || 'Sin nombre'}</b>
                     <small>
+                      {TIPO_PEDIDO[tipoDeDireccion(p.customer_address)].icono} {TIPO_PEDIDO[tipoDeDireccion(p.customer_address)].corta} ·{' '}
                       {unidades(p)} {unidades(p) === 1 ? 'producto' : 'productos'}
                     </small>
                   </span>
@@ -222,8 +224,13 @@ function DetallePedido({ pedido: p, alCerrar }: { pedido: Pedido; alCerrar: () =
               </dd>
             </div>
             <div>
-              <dt>Dirección</dt>
-              <dd>{p.customer_address || '—'}</dd>
+              <dt>Entrega</dt>
+              <dd>
+                {TIPO_PEDIDO[tipoDeDireccion(p.customer_address)].icono}{' '}
+                {tipoDeDireccion(p.customer_address) === 'domicilio'
+                  ? p.customer_address || '—'
+                  : p.customer_address}
+              </dd>
             </div>
             <div>
               <dt>Pago</dt>
@@ -262,7 +269,9 @@ function DetallePedido({ pedido: p, alCerrar }: { pedido: Pedido; alCerrar: () =
             <span>Total productos</span>
             <b>{dinero(p.subtotal)}</b>
           </div>
-          <p className="hp-nota">El domicilio se cobra aparte y no está incluido en este total.</p>
+          {tipoDeDireccion(p.customer_address) === 'domicilio' && (
+            <p className="hp-nota">El domicilio se cobra aparte y no está incluido en este total.</p>
+          )}
         </div>
       </div>
     </div>,

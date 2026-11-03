@@ -8,6 +8,8 @@
  * la forma, esos carritos se perderían el día del cambio.
  * ============================================================= */
 
+import type { TipoPedido } from '@/lib/tipo-pedido';
+
 export const CLAVE_CARRITO = 'porton_cart';
 export const CLAVE_FORMULARIO = 'porton_form';
 
@@ -55,6 +57,10 @@ export type DatosFormulario = {
   direccion: string;
   pago: string;
   cambio: string;
+  /** Cómo recibe el pedido. Sin valor = domicilio (como siempre). */
+  tipo?: TipoPedido;
+  /** Hora aproximada de llegada ("19:30"), solo para recoger o comer allá. Opcional. */
+  hora?: string;
 };
 
 export const FORMULARIO_VACIO: DatosFormulario = {
@@ -63,4 +69,6 @@ export const FORMULARIO_VACIO: DatosFormulario = {
   direccion: '',
   pago: '',
   cambio: '',
+  tipo: 'domicilio',
+  hora: '',
 };

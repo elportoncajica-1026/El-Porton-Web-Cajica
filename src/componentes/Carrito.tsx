@@ -24,6 +24,8 @@ import { useCarrito } from '@/estado/carrito';
 import { camposIncompletos, detallesDe, formatearMiles, leerFormulario } from '@/lib/formulario';
 import { construirMensaje, urlWhatsApp, type LineaPedido } from '@/lib/whatsapp';
 import { registrarEvento } from '@/lib/rastreo-navegador';
+import { TIPO_PEDIDO, TIPOS_PEDIDO } from '@/lib/tipo-pedido';
+import { CONTACTO } from '@/data/portada';
 
 const fmt = (n: number) => '$' + n.toLocaleString('es-CO');
 const TELEFONO = (BRAND as { whatsapp: string }).whatsapp;
@@ -87,6 +89,8 @@ export default function Carrito() {
   }
 
   const faltanCampos = camposIncompletos(datos);
+  const tipo = datos.tipo ?? 'domicilio';
+  const aDomicilio = tipo === 'domicilio';
 
   async function enviar() {
     setIntento(true);
@@ -249,7 +253,29 @@ export default function Carrito() {
 
               {/* ---------- datos de despacho ---------- */}
               <form className="cart-form" autoComplete="on" onSubmit={(e) => e.preventDefault()}>
-                <h3 className="cart-form-title">📦 Datos de envío</h3>
+                {/* ¿Cómo recibe el pedido? Lo primero que se decide. */}
+                <div className="cart-field">
+                  <span>¿Cómo quieres tu pedido?</span>
+                  <div className="pago-opts tipo-opts" role="group" aria-label="Cómo quieres tu pedido">
+                    {TIPOS_PEDIDO.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        className={`pago-opt tipo-opt${tipo === t ? ' is-selected' : ''}`}
+                        aria-pressed={tipo === t}
+                        aria-label={TIPO_PEDIDO[t].etiqueta}
+                        onClick={() => actualizar({ tipo: t })}
+                      >
+                        <span className="tipo-icono" aria-hidden="true">
+                          {TIPO_PEDIDO[t].icono}
+                        </span>
+                        <span>{TIPO_PEDIDO[t].boton}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <h3 className="cart-form-title">{aDomicilio ? '📦 Datos de envío' : '🙋 Tus datos'}</h3>
 
                 <Campo
                   etiqueta="Nombre completo"
@@ -271,16 +297,33 @@ export default function Carrito() {
                   valor={datos.telefono}
                   onCambio={(v) => actualizar({ telefono: v })}
                 />
-                <Campo
-                  etiqueta="Dirección de entrega"
-                  error={intento && !datos.direccion.trim()}
-                  tipo="text"
-                  nombre="direccion"
-                  autoComplete="street-address"
-                  marcador="Calle, número, barrio…"
-                  valor={datos.direccion}
-                  onCambio={(v) => actualizar({ direccion: v })}
-                />
+                {aDomicilio ? (
+                  <Campo
+                    etiqueta="Dirección de entrega"
+                    error={intento && !datos.direccion.trim()}
+                    tipo="text"
+                    nombre="direccion"
+                    autoComplete="street-address"
+                    marcador="Calle, número, barrio…"
+                    valor={datos.direccion}
+                    onCambio={(v) => actualizar({ direccion: v })}
+                  />
+                ) : (
+                  <>
+                    <p className="cart-local">
+                      📍 Te esperamos en <strong>{CONTACTO.direccion.replace(/\.$/, '')}, Cajicá</strong>
+                    </p>
+                    <label className="cart-field">
+                      <span>¿A qué hora llegas? (opcional)</span>
+                      <input
+                        type="time"
+                        name="hora"
+                        value={datos.hora ?? ''}
+                        onChange={(e) => actualizar({ hora: e.target.value })}
+                      />
+                    </label>
+                  </>
+                )}
 
                 <div className={`cart-field${intento && !datos.pago ? ' field-error' : ''}`}>
                   <span>Método de pago</span>
@@ -345,9 +388,11 @@ export default function Carrito() {
               <span>Total productos</span>
               <span className="cart-total">{fmt(subtotal)}</span>
             </div>
-            <p className="cart-aviso-domicilio">
-              ⚠️ El valor del domicilio <strong>NO está incluido</strong>. Te lo confirma el asesor por WhatsApp.
-            </p>
+            {aDomicilio && (
+              <p className="cart-aviso-domicilio">
+                ⚠️ El valor del domicilio <strong>NO está incluido</strong>. Te lo confirma el asesor por WhatsApp.
+              </p>
+            )}
             {aviso && (
               <p className="cart-aviso" role="alert">
                 ⚠️ {aviso}
@@ -360,7 +405,9 @@ export default function Carrito() {
             {intento && !puedeEnviar && !enviando && (
               <p className="cart-aviso" role="alert">
                 {faltanCampos.length
-                  ? 'Completa tus datos de envío para continuar.'
+                  ? aDomicilio
+                    ? 'Completa tus datos de envío para continuar.'
+                    : 'Completa tus datos para continuar.'
                   : !consiente
                     ? 'Debes autorizar el tratamiento de datos para enviar el pedido.'
                     : ''}

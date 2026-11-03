@@ -36,7 +36,8 @@ export function camposIncompletos(d: DatosFormulario): (keyof DatosFormulario)[]
   const faltan: (keyof DatosFormulario)[] = [];
   if (!d.nombre.trim()) faltan.push('nombre');
   if (!d.telefono.trim()) faltan.push('telefono');
-  if (!d.direccion.trim()) faltan.push('direccion');
+  // La dirección solo hace falta a domicilio (recoger / comer allá no la piden).
+  if ((d.tipo ?? 'domicilio') === 'domicilio' && !d.direccion.trim()) faltan.push('direccion');
   if (!d.pago) faltan.push('pago');
   return faltan;
 }
@@ -59,6 +60,8 @@ export function leerFormulario(crudo: string | null): DatosFormulario {
       direccion: t(d.direccion),
       pago: '',
       cambio: '',
+      tipo: 'domicilio',
+      hora: '',
     };
   } catch {
     return { ...FORMULARIO_VACIO };

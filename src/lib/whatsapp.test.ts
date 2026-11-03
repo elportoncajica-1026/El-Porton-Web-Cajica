@@ -152,6 +152,31 @@ describe('totales y pago', () => {
 });
 
 /* ------------------------------------------------------------------ */
+describe('recoger y comer en el restaurante', () => {
+  it('el domicilio no cambia: sin línea de tipo y con su dirección', () => {
+    const m = msg([linea()], { ...datos, tipo: 'domicilio' });
+    expect(m.split('\n')[2]).toBe('━━━━━━━━━━━━━━━━━━');
+    expect(m).toContain('*Dirección:* Calle 11 A Sur #10-75');
+  });
+
+  it('recoger se anuncia arriba, sin dirección ni domicilio, con la hora', () => {
+    const m = msg([linea()], { ...datos, tipo: 'recoger', hora: '19:30' });
+    expect(m.split('\n')[2]).toBe('🏃 *RECOGE EN EL LOCAL*');
+    expect(m).toContain('📦 *DATOS DEL CLIENTE*');
+    expect(m).toContain('*Tipo:* Recoger en el local');
+    expect(m).toContain('*Llega aprox.:* 7:30 p.m.');
+    expect(m).not.toContain('*Dirección:*');
+    expect(m).not.toContain('Valor Domicilio');
+  });
+
+  it('comer en el restaurante sin hora no imprime la línea de llegada', () => {
+    const m = msg([linea()], { ...datos, tipo: 'restaurante', hora: '' });
+    expect(m.split('\n')[2]).toBe('🍽️ *COMER EN EL RESTAURANTE*');
+    expect(m).not.toContain('Llega aprox.');
+  });
+});
+
+/* ------------------------------------------------------------------ */
 describe('enlace de WhatsApp', () => {
   const tel = '573138214752';
 

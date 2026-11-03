@@ -14,6 +14,7 @@
  * ============================================================= */
 
 import type { DatosFormulario } from '@/types/carrito';
+import { TIPO_PEDIDO, horaLegible } from '@/lib/tipo-pedido';
 
 /** Una línea tal y como la devuelve el servidor. */
 export type LineaPedido = {
@@ -43,7 +44,13 @@ export function construirMensaje(
   datos: DatosFormulario,
   subtotal: number,
 ): string {
-  const L: string[] = [PREFIJO, '🔔 *¡NUEVO PEDIDO RECIBIDO!*', DIVISOR, ''];
+  const tipo = datos.tipo ?? 'domicilio';
+  const aDomicilio = tipo === 'domicilio';
+  const L: string[] = [PREFIJO, '🔔 *¡NUEVO PEDIDO RECIBIDO!*'];
+  // Los pedidos sin domicilio se anuncian arriba, bien visibles. El
+  // domicilio conserva el formato de siempre, que es el que ya conocen.
+  if (!aDomicilio) L.push(`${TIPO_PEDIDO[tipo].icono} *${TIPO_PEDIDO[tipo].titulo}*`);
+  L.push(DIVISOR, '');
 
   for (const it of lineas) {
     L.push(`• (${it.qty})x ${it.name} — ${fmt(it.unitPrice * it.qty)}`);
@@ -76,14 +83,20 @@ export function construirMensaje(
 
   L.push(DIVISOR);
   L.push(`*Subtotal:* ${fmt(subtotal)}`);
-  L.push('*Valor Domicilio:* Calculado por el asesor');
+  if (aDomicilio) L.push('*Valor Domicilio:* Calculado por el asesor');
   L.push(`*💸 TOTAL A PAGAR:* ${fmt(subtotal)}`);
   L.push('');
 
-  L.push('📦 *DATOS DE DESPACHO*');
+  L.push(aDomicilio ? '📦 *DATOS DE DESPACHO*' : '📦 *DATOS DEL CLIENTE*');
   L.push(`*Nombre:* ${datos.nombre}`);
   L.push(`*Teléfono:* ${datos.telefono}`);
-  L.push(`*Dirección:* ${datos.direccion}`);
+  if (aDomicilio) {
+    L.push(`*Dirección:* ${datos.direccion}`);
+  } else {
+    L.push(`*Tipo:* ${TIPO_PEDIDO[tipo].etiqueta}`);
+    const llega = horaLegible(datos.hora);
+    if (llega) L.push(`*Llega aprox.:* ${llega}`);
+  }
 
   let pago = `*Método de pago:* ${datos.pago}`;
   if (datos.pago === 'Efectivo' && datos.cambio) pago += ` (paga con ${datos.cambio})`;

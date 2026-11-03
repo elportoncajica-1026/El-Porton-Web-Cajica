@@ -32,6 +32,7 @@ import {
 } from '@/lib/pedidos-admin';
 import { fechaLarga, rangoDia } from '@/lib/panel';
 import SelectorDia from './SelectorDia';
+import { TIPO_PEDIDO, tipoDeDireccion } from '@/lib/tipo-pedido';
 
 const POR_PAGINA = 50;
 
@@ -164,6 +165,9 @@ export default function Pedidos({
                   {o.customer_name}{' '}
                   <span className={`badge-status st-${o.status}`}>
                     {ETIQUETA_ESTADO[o.status] ?? o.status}
+                  </span>{' '}
+                  <span className={`pn-tipo pn-tipo--${tipoDeDireccion(o.customer_address)}`}>
+                    {TIPO_PEDIDO[tipoDeDireccion(o.customer_address)].icono} {TIPO_PEDIDO[tipoDeDireccion(o.customer_address)].corta}
                   </span>
                 </div>
                 <div className="order-when">{fechaCorta(o.created_at)}</div>
@@ -182,7 +186,7 @@ export default function Pedidos({
                   o.customer_phone || '—'
                 )}
               </span>
-              <span>📍 {o.customer_address}</span>
+              <span>{tipoDeDireccion(o.customer_address) === 'domicilio' ? '📍' : '⏰'} {o.customer_address}</span>
               <span>
                 💳 {o.payment_method || '—'}
                 {o.cash_change ? ` (${o.cash_change})` : ''}

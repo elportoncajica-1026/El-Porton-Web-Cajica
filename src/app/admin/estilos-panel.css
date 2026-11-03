@@ -835,3 +835,9 @@
 .hp-total-final { display: flex; justify-content: space-between; align-items: baseline; margin-top: 1rem; font-size: 1rem; }
 .hp-total-final b { font-size: 1.35rem; color: #fff; }
 .hp-nota { margin: 0.35rem 0 0; color: #f59e0b; font-size: 0.78rem; }
+
+/* ---------- Tipo de pedido en el panel ---------- */
+.pn-tipo { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 999px; vertical-align: middle; }
+.pn-tipo--domicilio { background: rgba(255, 255, 255, 0.08); color: #d4d4d8; }
+.pn-tipo--recoger { background: rgba(168, 85, 247, 0.18); color: #d8b4fe; }
+.pn-tipo--restaurante { background: rgba(245, 158, 11, 0.18); color: #fcd34d; }
