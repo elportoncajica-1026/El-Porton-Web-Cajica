@@ -492,3 +492,16 @@
   line-height: 1.4;
 }
 .cart-local strong { color: #fff; }
+
+/* ---------- Carrito: tiempo estimado (editable en el panel) ---------- */
+.cart-aviso-tiempo {
+  margin: 0 0 0.6rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  background: rgba(245, 158, 11, 0.1);
+  color: #fcd34d;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+.cart-aviso-tiempo strong { color: #fff; }

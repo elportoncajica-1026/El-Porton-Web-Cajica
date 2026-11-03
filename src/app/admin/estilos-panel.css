@@ -841,3 +841,21 @@
 .pn-tipo--domicilio { background: rgba(255, 255, 255, 0.08); color: #d4d4d8; }
 .pn-tipo--recoger { background: rgba(168, 85, 247, 0.18); color: #d8b4fe; }
 .pn-tipo--restaurante { background: rgba(245, 158, 11, 0.18); color: #fcd34d; }
+
+/* ---------- Sección Tiempos ---------- */
+.tp-intro { color: #a1a1aa; font-size: 0.9rem; margin: -0.2rem 0 1rem; }
+.tp-lista { display: grid; gap: 0.75rem; }
+.tp-fila { display: grid; grid-template-columns: 13rem auto 1fr; align-items: center; gap: 0.6rem 1.2rem; padding: 0.9rem 1rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.025); }
+.tp-tipo { font-weight: 700; color: #fff; }
+.tp-campos { display: flex; align-items: center; gap: 0.5rem; }
+.tp-campos label { display: flex; align-items: center; gap: 0.4rem; color: #a1a1aa; font-size: 0.85rem; }
+.tp-campos input { width: 4.2rem; padding: 0.5rem 0.6rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.05); color: #fff; font: inherit; font-weight: 700; text-align: center; }
+.tp-campos input:focus { outline: none; border-color: rgba(229, 62, 62, 0.6); }
+.tp-min { color: #a1a1aa; font-size: 0.85rem; }
+.tp-vista { margin: 0; color: #fcd34d; font-size: 0.82rem; line-height: 1.4; }
+.tp-mal { color: #fca5a5; }
+.tp-ok { color: #86efac; font-size: 0.9rem; margin: 0.8rem 0 0; }
+.tp-acciones { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
+@media (max-width: 760px) {
+  .tp-fila { grid-template-columns: 1fr; }
+}

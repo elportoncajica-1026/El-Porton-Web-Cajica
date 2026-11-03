@@ -21,6 +21,7 @@ import type { Categoria, CategoriaId, ProductoMenu } from '@/types/menu';
 import { categoriasConProductos } from '@/lib/catalogo';
 import { CATEGORIA_COMBO } from '@/data/portada';
 import Carrito from './Carrito';
+import { TIEMPOS_POR_DEFECTO, type Tiempos } from '@/lib/tiempos';
 import BotonPreguntar from './BotonPreguntar';
 import Catalogo from './Catalogo';
 import ModalProducto from './ModalProducto';
@@ -31,9 +32,12 @@ import { ComoPedir, EncabezadoCarta } from './Secciones';
 export default function Tienda({
   menu,
   categorias,
+  tiempos = TIEMPOS_POR_DEFECTO,
 }: {
   menu: ProductoMenu[];
   categorias: Categoria[];
+  /** Tiempos de entrega que muestra el carrito (se editan en el panel). */
+  tiempos?: Tiempos;
 }) {
   const [abiertoId, setAbiertoId] = useState<string | null>(null);
   const abierto = abiertoId ? (menu.find((p) => p.id === abiertoId) ?? null) : null;
@@ -69,7 +73,7 @@ export default function Tienda({
       />
 
       <ModalProducto item={abierto} onCerrar={() => setAbiertoId(null)} />
-      <Carrito />
+      <Carrito tiempos={tiempos} />
       <BotonPreguntar />
     </>
   );

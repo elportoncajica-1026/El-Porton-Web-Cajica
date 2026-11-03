@@ -25,12 +25,13 @@ import { camposIncompletos, detallesDe, formatearMiles, leerFormulario } from '@
 import { construirMensaje, urlWhatsApp, type LineaPedido } from '@/lib/whatsapp';
 import { registrarEvento } from '@/lib/rastreo-navegador';
 import { TIPO_PEDIDO, TIPOS_PEDIDO } from '@/lib/tipo-pedido';
+import { TIEMPOS_POR_DEFECTO, textoRango, type Tiempos } from '@/lib/tiempos';
 import { CONTACTO } from '@/data/portada';
 
 const fmt = (n: number) => '$' + n.toLocaleString('es-CO');
 const TELEFONO = (BRAND as { whatsapp: string }).whatsapp;
 
-export default function Carrito() {
+export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: Tiempos }) {
   const { items, subtotal, unidades, hidratado, cambiarQty, quitar, vaciar } = useCarrito();
   const [abierto, setAbierto] = useState(false);
   const [datos, setDatos] = useState<DatosFormulario>(FORMULARIO_VACIO);
@@ -388,6 +389,12 @@ export default function Carrito() {
               <span>Total productos</span>
               <span className="cart-total">{fmt(subtotal)}</span>
             </div>
+            {/* Cuánto tarda (editable en el panel → Tiempos). */}
+            <p className="cart-aviso-tiempo">
+              ⏱️{' '}
+              {aDomicilio ? 'Tu domicilio llega en ' : 'Tu pedido estará listo en '}
+              <strong>{textoRango(tiempos[tipo])}</strong> aprox. después de confirmarlo por WhatsApp.
+            </p>
             {aDomicilio && (
               <p className="cart-aviso-domicilio">
                 ⚠️ El valor del domicilio <strong>NO está incluido</strong>. Te lo confirma el asesor por WhatsApp.

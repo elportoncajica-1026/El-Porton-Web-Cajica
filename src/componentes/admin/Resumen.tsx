@@ -30,7 +30,7 @@ import SelectorDia from './SelectorDia';
 import { Contador, Esqueleto } from './Animaciones';
 import { Icono, type NombreIcono } from '../Iconos';
 
-export type Seccion = 'inicio' | 'pedidos' | 'menu' | 'precios' | 'ventas' | 'visitas';
+export type Seccion = 'inicio' | 'pedidos' | 'menu' | 'precios' | 'tiempos' | 'ventas' | 'visitas';
 
 type Actividad = { cuando: string; tipo: 'pedido' | 'producto'; titulo: string; detalle: string; monto?: number };
 

@@ -1,6 +1,7 @@
 import type { Viewport } from 'next';
 import { CATEGORIES } from '@/data/menu';
 import { obtenerMenu } from '@/lib/menu-servidor';
+import { obtenerTiempos } from '@/lib/tiempos-servidor';
 import Navbar from '@/componentes/Navbar';
 import Hero from '@/componentes/Hero';
 import Tienda from '@/componentes/Tienda';
@@ -42,7 +43,8 @@ export const viewport: Viewport = {
 };
 
 export default async function Portada() {
-  const { menu } = await obtenerMenu();
+  // En paralelo: el menú y los tiempos de entrega del carrito (ninguno lanza).
+  const [{ menu }, tiempos] = await Promise.all([obtenerMenu(), obtenerTiempos()]);
 
   return (
     <>
@@ -64,7 +66,7 @@ export default async function Portada() {
         <Hero />
 
         {/* Favoritos, combo y la carta completa comparten estado con el modal. */}
-        <Tienda menu={menu} categorias={CATEGORIES} />
+        <Tienda menu={menu} categorias={CATEGORIES} tiempos={tiempos} />
 
         <Testimonios />
 
