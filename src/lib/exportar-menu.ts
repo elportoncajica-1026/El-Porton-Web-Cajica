@@ -23,6 +23,7 @@ const CATEGORIA_POS: Record<string, string> = {
   perros: 'PERROS CALIENTES',
   mazorcadas: 'MAZORCADAS',
   salchipapas: 'PAPITAS Y MAS',
+  carnes: 'CARNES',
   pizzas: 'PIZZAS LASAÑAS',
   infantil: 'MENU INFANTIL',
   bebidas: 'BEBIDAS',

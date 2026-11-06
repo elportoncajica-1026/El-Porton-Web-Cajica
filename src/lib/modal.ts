@@ -105,12 +105,17 @@ export function queFalta(item: ProductoMenu, sel: Seleccion): string[] {
 
   if (item.proteins && item.chooseProteins) {
     const n = item.chooseProteins;
-    if (sel.proteinas.length < n) {
-      falta.push(n > 1 ? `Elige ${n} proteínas` : 'Elige la proteína');
-    }
+    if (sel.proteinas.length < n) falta.push(tituloEleccion(item));
   }
 
   return falta;
+}
+
+/** "Elige 2 proteínas", "Elige la proteína", "Elige 2 acompañantes"… según el plato. */
+export function tituloEleccion(item: Pick<ProductoMenu, 'chooseProteins' | 'proteinsNombre'>): string {
+  const n = item.chooseProteins ?? 1;
+  const nombre = item.proteinsNombre ?? { uno: 'la proteína', varios: 'proteínas' };
+  return n > 1 ? `Elige ${n} ${nombre.varios}` : `Elige ${nombre.uno}`;
 }
 
 /** Convierte la selección en la línea que entra al carrito. */

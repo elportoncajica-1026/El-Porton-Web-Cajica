@@ -28,6 +28,7 @@ import {
   precioDe,
   queFalta,
   seleccionInicial,
+  tituloEleccion,
   type Seleccion,
 } from '@/lib/modal';
 import { useCarrito } from '@/estado/carrito';
@@ -150,7 +151,7 @@ export default function ModalProducto({
           {/* ---- proteínas ---- */}
           {item.proteins && (
             <Seccion
-              titulo={(item.chooseProteins ?? 1) > 1 ? `Elige ${item.chooseProteins} proteínas` : 'Elige la proteína'}
+              titulo={tituloEleccion(item)}
               clase="proteins-group"
             >
               {item.proteins.map((p) => (

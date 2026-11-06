@@ -13,7 +13,7 @@
  *   · combo / adicion → viven en el CÓDIGO (data/menu.ts), no en la base.
  *       Se muestran como aviso si cambiaron, pero no se aplican solos.
  *
- * Los productos del POS que no están aquí (entradas, carnes, masas,
+ * Los productos del POS que no están aquí (entradas, masas,
  * icopor…) no existen en la carta web y se ignoran.
  *
  * Tabla armada a partir de Plantilla_Productos.xlsx (2026-10).
@@ -73,6 +73,12 @@ export const MAPEO_POS: Record<string, MapeoPos> = {
   '117400019': S('s-mixta'),
   '117400009': S('s-salchicosta'),
   '117400011': S('s-cheese-bacon'),
+
+  // ---- Carnes (agregadas a la carta web el 2026-11-05) ----
+  '112100005': P('c-pechuga-gratinada'),
+  '112100006': P('c-pechuga-porton'),
+  '112100007': P('c-carne-plancha'),
+  '112100008': P('c-costillas-bbq'),
 
   // ---- Pizzas y lasañas ----
   '119100016': P('pz-personal', 'Personal'),

@@ -30,14 +30,14 @@ describe('disponibilidad', () => {
 
 /* ------------------------------------------------------------------ */
 describe('pestañas de categoría', () => {
-  it('con el menú completo salen las 7', () => {
-    expect(categoriasConProductos(menu, CATEGORIES)).toHaveLength(7);
+  it('con el menú completo salen las 8', () => {
+    expect(categoriasConProductos(menu, CATEGORIES)).toHaveLength(8);
   });
 
   it('una categoría entera agotada no saca pestaña', () => {
     const sinBebidas = menu.map((p) => (p.cat === 'bebidas' ? { ...p, available: false } : p));
     const r = categoriasConProductos(sinBebidas, CATEGORIES);
-    expect(r).toHaveLength(6);
+    expect(r).toHaveLength(7);
     expect(r.some((c) => c.key === 'bebidas')).toBe(false);
   });
 
@@ -50,7 +50,7 @@ describe('pestañas de categoría', () => {
   });
 
   it('si NINGUNA tiene productos, devuelve todas (no deja la barra vacía)', () => {
-    expect(categoriasConProductos([], CATEGORIES)).toHaveLength(7);
+    expect(categoriasConProductos([], CATEGORIES)).toHaveLength(8);
   });
 });
 

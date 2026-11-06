@@ -11,6 +11,7 @@ import {
   rutaSector,
   saboresConPorcion,
   seleccionInicial,
+  tituloEleccion,
   type Seleccion,
 } from '@/lib/modal';
 import { validarPedido } from '@/lib/precio';
@@ -223,6 +224,18 @@ describe('qué falta antes de poder añadir (NO existe en v1)', () => {
   it('mazorcada con menos proteínas de las pedidas', () => {
     expect(queFalta(maz, sel(maz, { proteinas: [maz.proteins![0]] })).length).toBe(1);
     expect(queFalta(maz, sel(maz, { proteinas: maz.proteins!.slice(0, 2) }))).toEqual([]);
+  });
+
+  it('carnes: piden 2 acompañantes, no "proteínas"', () => {
+    const carne = menu.find((p) => p.id === 'c-carne-plancha')!;
+    expect(queFalta(carne, sel(carne))).toEqual(['Elige 2 acompañantes']);
+    expect(queFalta(carne, sel(carne, { proteinas: carne.proteins!.slice(0, 2) }))).toEqual([]);
+  });
+
+  it('el título de la elección sale con el nombre de cada plato', () => {
+    expect(tituloEleccion({ chooseProteins: 2 })).toBe('Elige 2 proteínas');
+    expect(tituloEleccion({ chooseProteins: 1 })).toBe('Elige la proteína');
+    expect(tituloEleccion({ chooseProteins: 2, proteinsNombre: { uno: 'el acompañante', varios: 'acompañantes' } })).toBe('Elige 2 acompañantes');
   });
 
   it('ningún producto del menú queda bloqueado si se completa bien', () => {

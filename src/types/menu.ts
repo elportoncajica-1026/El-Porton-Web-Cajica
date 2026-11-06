@@ -15,12 +15,13 @@
  * TypeScript avisa al compilar en vez de fallar en producción.
  * ============================================================= */
 
-/** Las 7 categorías del catálogo (campo `key` de CATEGORIES). */
+/** Las 8 categorías del catálogo (campo `key` de CATEGORIES). */
 export type CategoriaId =
   | 'hamburguesas'
   | 'perros'
   | 'mazorcadas'
   | 'salchipapas'
+  | 'carnes'
   | 'pizzas'
   | 'infantil'
   | 'bebidas';
@@ -60,9 +61,14 @@ export type ProductoMenu = {
   /** Trozos (x8 / x10 / x12…). No cambia el precio. */
   slices?: string[];
 
-  /** Mazorcadas: proteínas elegibles. */
+  /** Mazorcadas: proteínas elegibles. Las carnes reutilizan esto para sus acompañantes. */
   proteins?: string[];
   chooseProteins?: number;
+  /**
+   * Cómo se llama lo que se elige en `proteins`, con artículo en singular.
+   * Sin esto: "la proteína" / "proteínas". Las carnes: "el acompañante" / "acompañantes".
+   */
+  proteinsNombre?: { uno: string; varios: string };
 
   choices?: Choice[];
 

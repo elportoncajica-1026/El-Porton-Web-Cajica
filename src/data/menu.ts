@@ -249,10 +249,15 @@ const CATEGORIES = [
   { key: "perros",       label: "Perros Calientes",  emoji: "🌭" },
   { key: "mazorcadas",   label: "Mazorcadas",        emoji: "🌽" },
   { key: "salchipapas",  label: "Salchipapas",       emoji: "🍟" },
+  { key: "carnes",       label: "Carnes",            emoji: "🥩" },
   { key: "pizzas",       label: "Pizzas & Lasañas",  emoji: "🍕" },
   { key: "infantil",     label: "Menú Infantil",     emoji: "🧒" },
   { key: "bebidas",      label: "Bebidas & Cervezas", emoji: "🥤" },
 ];
+
+// Acompañantes de las carnes: se eligen 2 de estos 3 (sin cambio de precio).
+const ACOMPANANTES_CARNES = ["Papa a la francesa", "Ensalada de la casa", "Arepa con queso gratinada"];
+const ACOMPANANTE = { uno: "el acompañante", varios: "acompañantes" };
 
 // Sabores de pizza (compartidos por todos los tamaños)
 const PIZZA_FLAVORS = [
@@ -375,6 +380,27 @@ const MENU = [
   { id:"s-cheese-bacon", cat:"salchipapas", combo:false, emoji:"🍟", img:"assets/Platos/salchipapa-cheese-bacon.jpg",
     name:"Papas Cheese Bacon", desc:"Doble papa, salchicha, queso cheddar, tocineta y cebollín.",
     options:[{label:"Estándar",price:26000},{label:"Con Codorniz",price:31500}] },
+
+  /* ---------- CARNES ---------- */
+  /* Tomado de la carta física "CARNES" (foto IMG_2968, 2026-11-05). El dueño  */
+  /* aclaró: se eligen 2 de los 3 acompañantes y las carnes NO traen bebida.   */
+  /* Las costillas: 450 gr según la carta (el POS dice 500 gr).                 */
+  { id:"c-pechuga-gratinada", cat:"carnes", combo:false, emoji:"🍗", img:"assets/Platos/pechuga-gratinada.jpg",
+    proteins:ACOMPANANTES_CARNES, chooseProteins:2, proteinsNombre:ACOMPANANTE,
+    name:"Pechuga Gratinada", desc:"300 gr de pechuga gratinada con dos acompañantes a elección. No incluye bebida.",
+    options:[{label:"Porción",price:30000}] },
+  { id:"c-pechuga-porton", cat:"carnes", combo:false, emoji:"🍗", img:"assets/Platos/pechuga-porton.jpg",
+    proteins:ACOMPANANTES_CARNES, chooseProteins:2, proteinsNombre:ACOMPANANTE,
+    name:"Pechuga Portón", desc:"300 gr de pechuga gratinada con tomate, tocineta y albahaca, con dos acompañantes a elección. No incluye bebida.",
+    options:[{label:"Porción",price:36000}] },
+  { id:"c-carne-plancha", cat:"carnes", combo:false, emoji:"🥩", img:"assets/Platos/carne-a-la-plancha.jpg",
+    proteins:ACOMPANANTES_CARNES, chooseProteins:2, proteinsNombre:ACOMPANANTE,
+    name:"Carne a la Plancha", desc:"300 gr de carne a la plancha con dos acompañantes a elección. No incluye bebida.",
+    options:[{label:"Porción",price:32000}] },
+  { id:"c-costillas-bbq", cat:"carnes", combo:false, emoji:"🍖", img:"assets/Platos/costillas-bbq.jpg",
+    proteins:ACOMPANANTES_CARNES, chooseProteins:2, proteinsNombre:ACOMPANANTE,
+    name:"Costillas BBQ", desc:"450 gr de costillas de cerdo BBQ con dos acompañantes a elección. No incluye bebida.",
+    options:[{label:"Porción",price:40000}] },
 
   /* ---------- 5. PIZZAS & LASAÑAS ---------- */
   { id:"pz-personal", cat:"pizzas", combo:false, emoji:"🍕", pizza:true, maxFlavors:2,
@@ -516,6 +542,10 @@ const CAT_DESC = {
   /* Pedido del cliente (2026-10-31): avisar la piña antes de pedir. */
   perros: [
     { emoji:"🍍", title:"Todos nuestros perros llevan piña", text:"Si no la quieres, escríbelo en \"Notas especiales\" al agregar tu perro." },
+  ],
+  carnes: [
+    { emoji:"🥗", title:"Dos acompañantes a elección", text:"Escoge 2 entre papa a la francesa, ensalada de la casa y arepa con queso gratinada." },
+    { emoji:"🥤", title:"No incluyen bebida", text:"Si quieres algo de tomar, agrégalo desde Bebidas & Cervezas." },
   ],
 };
 

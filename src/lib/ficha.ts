@@ -41,10 +41,11 @@ export function fichaDe(item: ProductoMenu, categorias: Categoria[]): Ficha {
   }
 
   if (item.proteins && item.chooseProteins) {
+    const nombre = item.proteinsNombre ?? { uno: 'la proteína', varios: 'proteínas' };
     detalles.push(
       item.chooseProteins > 1
-        ? `Escoge ${item.chooseProteins} proteínas entre ${enumerar(item.proteins)}.`
-        : `Escoge la proteína: ${enumerar(item.proteins)}.`,
+        ? `Escoge ${item.chooseProteins} ${nombre.varios} entre ${enumerar(item.proteins)}.`
+        : `Escoge ${nombre.uno}: ${enumerar(item.proteins)}.`,
     );
   }
 
