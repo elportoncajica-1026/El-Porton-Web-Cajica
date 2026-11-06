@@ -478,7 +478,7 @@
 }
 
 /* ---------- Carrito: cómo recibe el pedido (domicilio / recoger / restaurante) ---------- */
-.tipo-opts { grid-template-columns: repeat(3, 1fr); }
+.tipo-opts { grid-template-columns: repeat(2, 1fr); }
 .tipo-opt { flex-direction: column; gap: 0.25rem; padding: 0.7rem 0.35rem; line-height: 1.2; min-height: 4.4rem; }
 .tipo-icono { font-size: 1.25rem; line-height: 1; }
 .cart-local {

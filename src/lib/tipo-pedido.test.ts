@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { direccionAGuardar, esTipoPedido, horaLegible, tipoDeDireccion } from './tipo-pedido';
+import { direccionAGuardar, esTipoPedido, horaLegible, seOfreceEnCarrito, tipoDeDireccion, TIPOS_EN_CARRITO } from './tipo-pedido';
 
 describe('horaLegible', () => {
   it('pasa la hora del selector a formato de 12 horas', () => {
@@ -35,5 +35,17 @@ describe('direccionAGuardar / tipoDeDireccion', () => {
     expect(esTipoPedido('recoger')).toBe(true);
     expect(esTipoPedido('mesa')).toBe(false);
     expect(esTipoPedido(undefined)).toBe(false);
+  });
+});
+
+describe('tipos que ofrece el carrito', () => {
+  it('solo domicilio y recoger (comer allá se quitó)', () => {
+    expect([...TIPOS_EN_CARRITO]).toEqual(['domicilio', 'recoger']);
+    expect(seOfreceEnCarrito('restaurante')).toBe(false);
+    expect(seOfreceEnCarrito('recoger')).toBe(true);
+  });
+
+  it('los pedidos viejos de restaurante se siguen reconociendo en el panel', () => {
+    expect(tipoDeDireccion('Come en el restaurante')).toBe('restaurante');
   });
 });

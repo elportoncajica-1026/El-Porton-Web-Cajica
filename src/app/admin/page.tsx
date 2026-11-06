@@ -44,7 +44,7 @@ const TITULOS: Record<Seccion, { titulo: string; sub: string }> = {
   pedidos: { titulo: 'Pedidos', sub: 'Cambia el estado de cada pedido con un toque' },
   menu: { titulo: 'Menú', sub: 'Precios, fotos, descripciones y platos agotados' },
   precios: { titulo: 'Precios POS', sub: 'Ajusta los precios de la carta con la plantilla de VectorPOS' },
-  tiempos: { titulo: 'Tiempos de entrega', sub: 'Lo que el carrito promete: domicilio, recoger y comer en el restaurante' },
+  tiempos: { titulo: 'Tiempos de entrega', sub: 'Lo que el carrito promete: domicilio y recoger en el local' },
   ventas: { titulo: 'Ventas', sub: 'Ingresos, productos más vendidos y exportación' },
   visitas: { titulo: 'Visitas', sub: 'Cuántas personas entran a la web' },
 };

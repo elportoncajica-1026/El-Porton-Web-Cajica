@@ -24,7 +24,7 @@ import { useCarrito } from '@/estado/carrito';
 import { camposIncompletos, detallesDe, formatearMiles, leerFormulario } from '@/lib/formulario';
 import { construirMensaje, urlWhatsApp, type LineaPedido } from '@/lib/whatsapp';
 import { registrarEvento } from '@/lib/rastreo-navegador';
-import { TIPO_PEDIDO, TIPOS_PEDIDO } from '@/lib/tipo-pedido';
+import { TIPO_PEDIDO, TIPOS_EN_CARRITO, seOfreceEnCarrito } from '@/lib/tipo-pedido';
 import { TIEMPOS_POR_DEFECTO, textoAviso, type Tiempos } from '@/lib/tiempos';
 import { CONTACTO } from '@/data/portada';
 
@@ -90,7 +90,8 @@ export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: T
   }
 
   const faltanCampos = camposIncompletos(datos);
-  const tipo = datos.tipo ?? 'domicilio';
+  // Un carrito guardado con un tipo que ya no se ofrece vuelve a domicilio.
+  const tipo = seOfreceEnCarrito(datos.tipo) ? datos.tipo : 'domicilio';
   const aDomicilio = tipo === 'domicilio';
   const avisoTiempo = textoAviso(tipo, tiempos[tipo]);
 
@@ -259,7 +260,7 @@ export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: T
                 <div className="cart-field">
                   <span>¿Cómo quieres tu pedido?</span>
                   <div className="pago-opts tipo-opts" role="group" aria-label="Cómo quieres tu pedido">
-                    {TIPOS_PEDIDO.map((t) => (
+                    {TIPOS_EN_CARRITO.map((t) => (
                       <button
                         key={t}
                         type="button"

@@ -15,6 +15,17 @@
 export const TIPOS_PEDIDO = ['domicilio', 'recoger', 'restaurante'] as const;
 export type TipoPedido = (typeof TIPOS_PEDIDO)[number];
 
+/**
+ * Los que el carrito ofrece hoy. "Comer en el restaurante" se quitó a pedido
+ * del dueño (2026-11-06), pero el tipo sigue existiendo para que el panel lea
+ * bien los pedidos viejos que lo usaron.
+ */
+export const TIPOS_EN_CARRITO = ['domicilio', 'recoger'] as const satisfies readonly TipoPedido[];
+export type TipoEnCarrito = (typeof TIPOS_EN_CARRITO)[number];
+
+export const seOfreceEnCarrito = (v: unknown): v is TipoEnCarrito =>
+  typeof v === 'string' && (TIPOS_EN_CARRITO as readonly string[]).includes(v);
+
 /* `boton`: texto corto para los botones del carrito (en celular caben tres).
    `etiqueta`: nombre completo (mensaje de WhatsApp). `corta`: etiqueta del panel. */
 export const TIPO_PEDIDO: Record<TipoPedido, { etiqueta: string; boton: string; corta: string; icono: string; titulo: string }> = {

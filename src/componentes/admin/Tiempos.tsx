@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabaseNavegador } from '@/lib/supabase-navegador';
-import { TIPO_PEDIDO, TIPOS_PEDIDO, type TipoPedido } from '@/lib/tipo-pedido';
+import { TIPO_PEDIDO, TIPOS_EN_CARRITO, TIPOS_PEDIDO, type TipoPedido } from '@/lib/tipo-pedido';
 import { TIEMPOS_POR_DEFECTO, erroresTiempos, esExacto, normalizarTiempos, textoAviso, MINUTOS_MAX, MINUTOS_MIN, type Tiempos as TiemposT } from '@/lib/tiempos';
 
 type Borrador = Record<TipoPedido, { min: string; max: string }>;
@@ -99,12 +99,12 @@ export default function Tiempos({ recargarToken }: { recargarToken: number }) {
       {falta && (
         <p className="login-error">
           Falta crear la tabla de ajustes en Supabase: corre <b>db/ajustes-setup.sql</b> en el SQL Editor. Mientras tanto
-          el carrito muestra los tiempos por defecto (domicilio 40–50 min, recoger y restaurante 15–20 min).
+          el carrito muestra los tiempos por defecto (domicilio 40–50 min, recoger 15–20 min).
         </p>
       )}
 
       <div className="tp-lista">
-        {TIPOS_PEDIDO.map((tipo) => {
+        {TIPOS_EN_CARRITO.map((tipo) => {
           const r = borrador[tipo];
           const valido = erroresTiempos({ ...TIEMPOS_POR_DEFECTO, [tipo]: r }).length === 0;
           return (
