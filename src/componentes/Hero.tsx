@@ -3,6 +3,7 @@ import type { ProductoHero } from '@/types/menu';
 import CarruselHero from './CarruselHero';
 import EfectoScrollHero from './EfectoScrollHero';
 import DecoracionHalloween from './DecoracionHalloween';
+import DecoracionNavidad from './DecoracionNavidad';
 
 /* =============================================================
  * HERO
@@ -26,6 +27,7 @@ export default function Hero() {
     <section id="inicio" className="hero">
       <CarruselHero productos={conFoto} />
       <DecoracionHalloween />
+      <DecoracionNavidad />
 
       <div id="scroll-indicator" className="scroll-indicator" aria-hidden="true">
         <span>Desliza</span>
