@@ -55,8 +55,10 @@ export default function FondoParticulas() {
     let particulas: Particula[] = [];
     let humo: Humo[] = [];
     const raton: Raton = { x: -9999, y: -9999, activo: false };
-    // En Halloween las chispas rojas pasan a brasas naranjas (lib/temporada.ts).
-    const chispa = document.documentElement.dataset.temporada === 'halloween' ? '255,122,26' : '229,62,62';
+    // En temporada cambia el color de las chispas (lib/temporada.ts):
+    // Halloween → brasas naranjas; Navidad → destellos azul hielo.
+    const temporada = document.documentElement.dataset.temporada;
+    const chispa = temporada === 'halloween' ? '255,122,26' : temporada === 'navidad' ? '160,210,255' : '229,62,62';
 
     function medir() {
       W = Math.max(1, window.innerWidth);

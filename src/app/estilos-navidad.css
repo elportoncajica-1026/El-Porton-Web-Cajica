@@ -1,0 +1,386 @@
+/* =============================================================
+ * TEMPORADA — Navidad (azul y blanco)
+ *
+ * Todo cuelga de html[data-temporada="navidad"], que pone el script
+ * del <head> solo en fechas (lib/temporada.ts). Fuera de fecha nada
+ * de esto aplica y la página se ve como siempre.
+ *
+ * Criterio: noche de invierno, no calcomanías. Luz fría, nieve con
+ * profundidad, carámbanos bajo el menú y el trineo de Santa cruzando
+ * el cielo. Nada tapa botones ni precios y nada recibe clics. Solo se
+ * anima transform/opacity (fluido en celulares de gama baja).
+ * No se apaga con "reducir movimiento": es lenta y decorativa, y
+ * muchos celulares traen esa opción activada sin que el dueño lo sepa.
+ *
+ * Capas (z-index): contenido ≤ 20 · nieve y trineos 30 · botón del
+ * carrito 40 · menú 50 (con sus carámbanos) · entrada 60 · carrito y
+ * ventanas 200+.
+ * ============================================================= */
+
+.nv-deco,
+.nv-capa,
+.nv-entrada,
+.nv-solo { display: none; }
+
+html[data-temporada="navidad"] .nv-deco,
+html[data-temporada="navidad"] .nv-capa,
+html[data-temporada="navidad"] .nv-solo { display: block; }
+html[data-temporada="navidad"] .nv-entrada.nv-entrada--activa { display: block; }
+
+/* ---------- Acentos: el rojo de los detalles pasa a azul hielo ---------- */
+html[data-temporada="navidad"] .hero-tagline,
+html[data-temporada="navidad"] .rd-titulo-icono { color: #9fd6ff; }
+html[data-temporada="navidad"] .rd-raya { background: linear-gradient(90deg, #5fb4ff, #ffffff); }
+
+/* Filo de luz fría bajo el menú superior. */
+html[data-temporada="navidad"] #navbar,
+html[data-temporada="navidad"] #navbar.scrolled {
+  border-bottom: 1px solid rgba(170, 215, 255, 0.3);
+  box-shadow: 0 10px 34px -12px rgba(120, 185, 255, 0.4);
+}
+
+/* La insignia "Abierto / Cerrado" baja un poco para no quedar bajo los carámbanos. */
+html[data-temporada="navidad"] .estado-flotante { top: calc(9rem + 2rem); }
+
+/* =============================================================
+ * CARÁMBANOS bajo el menú (van dentro de #navbar)
+ * ============================================================= */
+.nv-carambanos {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 24px;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='24' viewBox='0 0 180 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='0.55' stop-color='%23d8ecff' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%239fd0ff' stop-opacity='0.25'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='180' height='3' fill='%23ffffff' fill-opacity='0.9'/%3E%3Cpath fill='url%28%23g%29' d='M3 2 Q4.8 10.5 8.0 17 Q11.2 10.5 13 2Z M16 2 Q17.3 6.2 19.5 10 Q21.7 6.2 23 2Z M26 2 Q28.2 14.3 32.0 23 Q35.8 14.3 38 2Z M42 2 Q43.4 8.1 46.0 13 Q48.6 8.1 50 2Z M54 2 Q55.8 11.8 59.0 19 Q62.2 11.8 64 2Z M68 2 Q69.1 5.0 71.0 8 Q72.9 5.0 74 2Z M78 2 Q80.0 13.0 83.5 21 Q87.0 13.0 89 2Z M93 2 Q94.4 7.4 97.0 12 Q99.6 7.4 101 2Z M105 2 Q107.2 14.9 111.0 24 Q114.8 14.9 117 2Z M121 2 Q122.3 5.6 124.5 9 Q126.7 5.6 128 2Z M132 2 Q133.8 11.2 137.0 18 Q140.2 11.2 142 2Z M146 2 Q147.4 6.8 150.0 11 Q152.6 6.8 154 2Z M158 2 Q160.0 12.4 163.5 20 Q167.0 12.4 169 2Z M172 2 Q173.1 4.3 175.0 7 Q176.9 4.3 178 2Z'/%3E%3C/svg%3E") repeat-x 0 0 / 180px 24px;
+  filter: drop-shadow(0 2px 4px rgba(140, 200, 255, 0.4));
+}
+/* Un destello de luz que recorre los carámbanos de vez en cuando. */
+.nv-carambanos::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='24' viewBox='0 0 180 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='0.55' stop-color='%23d8ecff' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%239fd0ff' stop-opacity='0.25'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='180' height='3' fill='%23ffffff' fill-opacity='0.9'/%3E%3Cpath fill='url%28%23g%29' d='M3 2 Q4.8 10.5 8.0 17 Q11.2 10.5 13 2Z M16 2 Q17.3 6.2 19.5 10 Q21.7 6.2 23 2Z M26 2 Q28.2 14.3 32.0 23 Q35.8 14.3 38 2Z M42 2 Q43.4 8.1 46.0 13 Q48.6 8.1 50 2Z M54 2 Q55.8 11.8 59.0 19 Q62.2 11.8 64 2Z M68 2 Q69.1 5.0 71.0 8 Q72.9 5.0 74 2Z M78 2 Q80.0 13.0 83.5 21 Q87.0 13.0 89 2Z M93 2 Q94.4 7.4 97.0 12 Q99.6 7.4 101 2Z M105 2 Q107.2 14.9 111.0 24 Q114.8 14.9 117 2Z M121 2 Q122.3 5.6 124.5 9 Q126.7 5.6 128 2Z M132 2 Q133.8 11.2 137.0 18 Q140.2 11.2 142 2Z M146 2 Q147.4 6.8 150.0 11 Q152.6 6.8 154 2Z M158 2 Q160.0 12.4 163.5 20 Q167.0 12.4 169 2Z M172 2 Q173.1 4.3 175.0 7 Q176.9 4.3 178 2Z'/%3E%3C/svg%3E") repeat-x 0 0 / 180px 24px;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='24' viewBox='0 0 180 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='0.55' stop-color='%23d8ecff' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%239fd0ff' stop-opacity='0.25'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='180' height='3' fill='%23ffffff' fill-opacity='0.9'/%3E%3Cpath fill='url%28%23g%29' d='M3 2 Q4.8 10.5 8.0 17 Q11.2 10.5 13 2Z M16 2 Q17.3 6.2 19.5 10 Q21.7 6.2 23 2Z M26 2 Q28.2 14.3 32.0 23 Q35.8 14.3 38 2Z M42 2 Q43.4 8.1 46.0 13 Q48.6 8.1 50 2Z M54 2 Q55.8 11.8 59.0 19 Q62.2 11.8 64 2Z M68 2 Q69.1 5.0 71.0 8 Q72.9 5.0 74 2Z M78 2 Q80.0 13.0 83.5 21 Q87.0 13.0 89 2Z M93 2 Q94.4 7.4 97.0 12 Q99.6 7.4 101 2Z M105 2 Q107.2 14.9 111.0 24 Q114.8 14.9 117 2Z M121 2 Q122.3 5.6 124.5 9 Q126.7 5.6 128 2Z M132 2 Q133.8 11.2 137.0 18 Q140.2 11.2 142 2Z M146 2 Q147.4 6.8 150.0 11 Q152.6 6.8 154 2Z M158 2 Q160.0 12.4 163.5 20 Q167.0 12.4 169 2Z M172 2 Q173.1 4.3 175.0 7 Q176.9 4.3 178 2Z'/%3E%3C/svg%3E") repeat-x 0 0 / 180px 24px;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 1) 50%, transparent 70%) no-repeat;
+  background-size: 30% 100%;
+  animation: nv-brillo 7s ease-in-out 1.5s infinite;
+}
+@keyframes nv-brillo {
+  0%        { background-position: -45% 0; }
+  55%, 100% { background-position: 145% 0; }
+}
+
+/* =============================================================
+ * HERO
+ * ============================================================= */
+.nv-deco {
+  position: absolute;
+  inset: 0;
+  z-index: 1;   /* sobre la foto, debajo del texto del hero (z-index 2) */
+  pointer-events: none;
+  overflow: hidden;
+}
+/* Noche fría: viñeta azul oscura en los bordes y un resplandor de luna arriba a la derecha. */
+.nv-deco::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 55% 45% at 82% 0%, rgba(185, 220, 255, 0.22), transparent 70%),
+    radial-gradient(120% 90% at 50% 45%, transparent 40%, rgba(3, 12, 32, 0.7) 100%),
+    linear-gradient(180deg, rgba(25, 65, 140, 0.4) 0%, transparent 42%);
+}
+
+/* ---------- Escarcha en las esquinas de arriba ---------- */
+.nv-escarcha {
+  position: absolute;
+  top: 0;
+  width: clamp(170px, 26vw, 360px);
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 0 0, rgba(235, 246, 255, 0.5), rgba(190, 222, 255, 0.18) 34%, transparent 66%);
+}
+.nv-escarcha--izq { left: 0; }
+.nv-escarcha--der { right: 0; transform: scaleX(-1); }
+
+/* ---------- Copos de cristal grandes que flotan y giran ---------- */
+.nv-cristal {
+  position: absolute;
+  overflow: visible;
+  fill: none;
+  stroke: rgba(228, 244, 255, 0.95);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px rgba(150, 205, 255, 0.75));
+  opacity: 0.26;
+  /* Giro y flotación por separado (rotate / translate), para que no se pisen. */
+  animation:
+    nv-cristal-gira var(--giro, 60s) linear infinite,
+    nv-cristal-flota var(--flota, 9s) ease-in-out infinite;
+}
+.nv-cristal circle { fill: rgba(228, 244, 255, 0.95); stroke: none; }
+@keyframes nv-cristal-gira {
+  from { rotate: 0deg; }
+  to   { rotate: 360deg; }
+}
+@keyframes nv-cristal-flota {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 6px -20px; }
+}
+.nv-cristal--1 { left: -2.5%; top: 30%;   width: clamp(70px, 8vw, 124px);  --giro: 70s; --flota: 10s; opacity: 0.2; }
+.nv-cristal--2 { right: 4%;   top: 24%;   width: clamp(54px, 6vw, 96px);   --giro: 48s; --flota: 8s;  opacity: 0.3; }
+.nv-cristal--3 { left: 1.5%;  bottom: 24%; width: clamp(36px, 3.6vw, 56px); --giro: 40s; --flota: 7s;  opacity: 0.24; }
+.nv-cristal--4 { right: -1.5%; bottom: 30%; width: clamp(80px, 9vw, 144px); --giro: 85s; --flota: 12s; opacity: 0.22; animation-direction: reverse, normal; }
+@media (max-width: 767px) {
+  .nv-cristal--1, .nv-cristal--3 { display: none; }   /* ese lado es del texto */
+  .nv-cristal--2 { top: 21%; }
+}
+
+/* ---------- Banco de nieve al pie del hero ---------- */
+.nv-banco {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: clamp(40px, 6.5vw, 100px);
+}
+.nv-banco svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 -4px 16px rgba(170, 215, 255, 0.4));
+}
+.nv-banco-atras { fill: rgba(220, 236, 255, 0.45); }
+/* Destellos de la nieve al sol: una cruz de luz que aparece y se apaga. */
+.nv-destello {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: 0 0 -7px -7px;
+  opacity: 0;
+  background:
+    linear-gradient(90deg, transparent 44%, #fff 50%, transparent 56%),
+    linear-gradient(0deg, transparent 44%, #fff 50%, transparent 56%),
+    radial-gradient(circle, #fff 0 14%, rgba(170, 215, 255, 0.6) 28%, transparent 55%);
+  animation: nv-destello 3.4s ease-in-out infinite;
+}
+@keyframes nv-destello {
+  0%, 100% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+  40%      { opacity: 1; transform: scale(1.15) rotate(45deg); }
+  60%      { opacity: 0.15; transform: scale(0.8) rotate(60deg); }
+}
+
+/* =============================================================
+ * NIEVE Y TRINEOS (NavidadAmbiente.tsx): capa fija sobre la página
+ * ============================================================= */
+.nv-capa {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  overflow: hidden;
+}
+.nv-nieve,
+.nv-cielo { position: absolute; inset: 0; }
+
+.nv-trineo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+.nv-trineo svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 0 3px rgba(175, 218, 255, 0.95)) drop-shadow(0 0 12px rgba(110, 180, 255, 0.55));
+}
+.nv-trineo--lejos svg { opacity: 0.9; }
+.nv-trineo--entrada svg {
+  filter: drop-shadow(0 0 4px rgba(190, 228, 255, 1)) drop-shadow(0 0 22px rgba(110, 180, 255, 0.7));
+}
+
+/* Colores del dibujo: renos y trineo en blanco y azul hielo; Santa de rojo. */
+.tr-cuerpo { fill: #f2f9ff; }
+.tr-cuerno { fill: none; stroke: #e2f1ff; stroke-width: 1.7; stroke-linecap: round; }
+.tr-pata path { fill: none; stroke: #f2f9ff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.tr-nariz { fill: #ff4d4d; stroke: rgba(255, 90, 90, 0.45); stroke-width: 2.6; }
+.tr-rienda { fill: none; stroke: rgba(230, 244, 255, 0.85); stroke-width: 1.1; }
+.tr-saco { fill: #d9eeff; }
+.tr-saco-nudo { fill: none; stroke: #8fc1ec; stroke-width: 1.6; stroke-linecap: round; }
+.tr-santa-traje,
+.tr-santa-gorro { fill: #e0393e; }
+.tr-santa-brazo { fill: none; stroke: #e0393e; stroke-width: 3.4; stroke-linecap: round; }
+.tr-santa-cara { fill: #f6d7c3; }
+.tr-santa-barba,
+.tr-santa-pompon { fill: #ffffff; }
+.tr-santa-borde { fill: none; stroke: #ffffff; stroke-width: 2.8; stroke-linecap: round; }
+.tr-caja { fill: #a9d8ff; }
+.tr-caja-filete { fill: none; stroke: #eaf6ff; stroke-width: 1.4; stroke-linecap: round; }
+.tr-patin { fill: none; stroke: #f2f9ff; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Galope: patas de adelante y de atrás se abren y se recogen en contrafase;
+   cada reno lleva su propio desfase (--paso) para que no vayan al unísono. */
+.tr-pata {
+  transform-box: fill-box;
+  animation: 0.44s ease-in-out infinite alternate;
+  animation-delay: var(--paso, 0s);
+}
+.tr-pata--del { transform-origin: 8% 0%;  animation-name: tr-pata-del; }
+.tr-pata--tra { transform-origin: 92% 0%; animation-name: tr-pata-tra; }
+.tr-reno { animation: tr-trote 0.44s ease-in-out infinite alternate; animation-delay: var(--paso, 0s); }
+@keyframes tr-pata-del {
+  from { transform: rotate(-20deg); }
+  to   { transform: rotate(16deg); }
+}
+@keyframes tr-pata-tra {
+  from { transform: rotate(18deg); }
+  to   { transform: rotate(-16deg); }
+}
+@keyframes tr-trote {
+  from { transform: translateY(-1.6px); }
+  to   { transform: translateY(1.6px); }
+}
+
+/* =============================================================
+ * ENTRADA (≈4,4 s): noche azul, trineo y "¡Llegó la Navidad!"
+ * ============================================================= */
+.nv-entrada {
+  position: fixed;
+  inset: 0;
+  z-index: 60;        /* sobre el menú (cinemática), bajo el carrito y las ventanas */
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+}
+.nv-noche {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 72% 8%, rgba(110, 170, 245, 0.38), transparent 62%),
+    radial-gradient(ellipse 120% 100% at 50% 40%, rgba(7, 21, 52, 0.93), rgba(2, 7, 20, 0.98) 85%);
+}
+/* Estrellas que titilan. */
+.nv-noche::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1.4px 1.4px at 8% 14%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 19% 31%, #fff, transparent),
+    radial-gradient(1.6px 1.6px at 31% 9%, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 44% 22%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 57% 6%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 66% 27%, #fff, transparent),
+    radial-gradient(1.7px 1.7px at 83% 17%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 92% 34%, #fff, transparent),
+    radial-gradient(1.3px 1.3px at 12% 47%, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 88% 52%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 38% 41%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 74% 44%, #fff, transparent);
+  animation: nv-estrellas 1.6s ease-in-out infinite alternate;
+}
+@keyframes nv-estrellas {
+  from { opacity: 0.55; }
+  to   { opacity: 1; }
+}
+.nv-estela { position: absolute; inset: 0; }
+.nv-llego {
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  width: 96vw;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.nv-llego-titulo {
+  display: inline-block;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 9.4vw, 7.2rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: #f4faff;
+  text-shadow:
+    0 0 16px rgba(160, 210, 255, 0.8),
+    0 0 50px rgba(90, 160, 255, 0.5),
+    0 6px 26px rgba(0, 0, 0, 0.6);
+  /* Empieza oculta: la estela del trineo la va descubriendo (NavidadAmbiente.tsx). */
+  clip-path: inset(-30% 100% -30% -8%);
+}
+.nv-llego-sub {
+  margin: 0.9rem 0 0;
+  font-size: clamp(0.95rem, 2.3vw, 1.3rem);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #a9dbff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+  opacity: 0;
+}
+
+/* =============================================================
+ * RESTO DE LA PÁGINA
+ * ============================================================= */
+/* Carta: brillo de hielo y un poco de nieve sobre el borde de cada tarjeta. */
+html[data-temporada="navidad"] .cat-card {
+  position: relative;
+  border-color: rgba(160, 210, 255, 0.32);
+  box-shadow:
+    0 0 0 1px rgba(160, 210, 255, 0.12),
+    0 0 22px -2px rgba(120, 185, 255, 0.32),
+    0 0 60px -14px rgba(90, 160, 255, 0.35);
+}
+html[data-temporada="navidad"] .cat-card:hover {
+  border-color: rgba(185, 225, 255, 0.65);
+  box-shadow:
+    0 0 0 1px rgba(185, 225, 255, 0.28),
+    0 0 30px 0 rgba(130, 195, 255, 0.5),
+    0 0 80px -10px rgba(90, 160, 255, 0.45);
+}
+html[data-temporada="navidad"] .cat-card::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  top: -3px;
+  height: 15px;
+  border-radius: var(--rd-radio) var(--rd-radio) 0 0;
+  pointer-events: none;
+  /* Montoncitos de nieve de distinto tamaño a lo largo del borde. */
+  background:
+    radial-gradient(ellipse 15% 115% at 8% 0%, #fff 0 45%, transparent 72%),
+    radial-gradient(ellipse 22% 95% at 30% 0%, rgba(255, 255, 255, 0.95) 0 40%, transparent 72%),
+    radial-gradient(ellipse 13% 125% at 50% 0%, #fff 0 45%, transparent 72%),
+    radial-gradient(ellipse 24% 90% at 72% 0%, rgba(255, 255, 255, 0.92) 0 40%, transparent 72%),
+    radial-gradient(ellipse 15% 115% at 93% 0%, #fff 0 45%, transparent 72%),
+    linear-gradient(180deg, #fff 0 3px, rgba(225, 240, 255, 0.6) 5px, transparent 80%);
+  filter: drop-shadow(0 1px 3px rgba(170, 215, 255, 0.55));
+}
+
+/* Banner del combo: luz fría en la esquina, sin adornos. */
+html[data-temporada="navidad"] .rd-combo-full::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 70% at 100% 100%, rgba(140, 200, 255, 0.24), transparent 70%),
+    linear-gradient(180deg, rgba(20, 50, 110, 0.3), transparent 45%);
+}
+
+/* Saludo en el pie de página. */
+.nv-saludo {
+  margin-top: 0.9rem;
+  color: #a9dbff;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
