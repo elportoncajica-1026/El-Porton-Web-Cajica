@@ -19,6 +19,7 @@
  * navegación se acumularían uno por visita.
  * ============================================================= */
 
+import FondoNavidad from './FondoNavidad';
 import { useEffect, useRef } from 'react';
 import {
   avanzarHumo,
@@ -168,6 +169,8 @@ export default function FondoParticulas() {
 
   return (
     <div id="page-bg" aria-hidden="true">
+      {/* Solo en Navidad: cielo con estrellas y pinos nevados. */}
+      <FondoNavidad />
       <div className="page-bg-texture" />
       <canvas id="page-particles" ref={ref} />
     </div>
