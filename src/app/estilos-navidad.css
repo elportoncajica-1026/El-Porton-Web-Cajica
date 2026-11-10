@@ -44,7 +44,7 @@ html[data-temporada="navidad"] .estado-flotante { top: calc(9rem + 2rem); }
 
 /* =============================================================
  * LUCES DE NAVIDAD bajo el menú (van dentro de #navbar)
- * Guirnalda de focos de colores; las luces se encienden en cadena.
+ * Guirnalda de focos de colores; el brillo cambia suave, de un foco al otro.
  * (La clase conserva su nombre .nv-carambanos para no tocar el menú.)
  * ============================================================= */
 .nv-carambanos {
@@ -58,17 +58,24 @@ html[data-temporada="navidad"] .estado-flotante { top: calc(9rem + 2rem); }
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='28' viewBox='0 0 120 28'%3E%3Cdefs%3E%3CradialGradient id='f0' cx='0.4' cy='0.35' r='0.75'%3E%3Cstop offset='0' stop-color='%23ff5a5a'/%3E%3Cstop offset='1' stop-color='%23c42b2b'/%3E%3C/radialGradient%3E%3CradialGradient id='f1' cx='0.4' cy='0.35' r='0.75'%3E%3Cstop offset='0' stop-color='%235ee08f'/%3E%3Cstop offset='1' stop-color='%23239a52'/%3E%3C/radialGradient%3E%3CradialGradient id='f2' cx='0.4' cy='0.35' r='0.75'%3E%3Cstop offset='0' stop-color='%23ffd36b'/%3E%3Cstop offset='1' stop-color='%23d79a1f'/%3E%3C/radialGradient%3E%3CradialGradient id='f3' cx='0.4' cy='0.35' r='0.75'%3E%3Cstop offset='0' stop-color='%236fb9ff'/%3E%3Cstop offset='1' stop-color='%232f7fd6'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpath d='M0 4 Q15 12 30 4 Q45 12 60 4 Q75 12 90 4 Q105 12 120 4' fill='none' stroke='%23161210' stroke-width='1.6'/%3E%3Crect x='12.8' y='8.6' width='4.4' height='4' rx='1' fill='%23222'/%3E%3Cellipse cx='15' cy='18' rx='4.6' ry='6.4' fill='url%28%23f0%29'/%3E%3Cellipse cx='13.5' cy='15.6' rx='1.3' ry='2' fill='white' fill-opacity='0.75'/%3E%3Crect x='42.8' y='8.6' width='4.4' height='4' rx='1' fill='%23222'/%3E%3Cellipse cx='45' cy='18' rx='4.6' ry='6.4' fill='url%28%23f1%29'/%3E%3Cellipse cx='43.5' cy='15.6' rx='1.3' ry='2' fill='white' fill-opacity='0.75'/%3E%3Crect x='72.8' y='8.6' width='4.4' height='4' rx='1' fill='%23222'/%3E%3Cellipse cx='75' cy='18' rx='4.6' ry='6.4' fill='url%28%23f2%29'/%3E%3Cellipse cx='73.5' cy='15.6' rx='1.3' ry='2' fill='white' fill-opacity='0.75'/%3E%3Crect x='102.8' y='8.6' width='4.4' height='4' rx='1' fill='%23222'/%3E%3Cellipse cx='105' cy='18' rx='4.6' ry='6.4' fill='url%28%23f3%29'/%3E%3Cellipse cx='103.5' cy='15.6' rx='1.3' ry='2' fill='white' fill-opacity='0.75'/%3E%3C/svg%3E") repeat-x 0 0 / 120px 28px;
   filter: drop-shadow(0 0 3px rgba(255, 220, 160, 0.35));
 }
+.nv-carambanos::before,
 .nv-carambanos::after {
   content: '';
   position: absolute;
   inset: 0;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='28' viewBox='0 0 60 28'%3E%3Cdefs%3E%3CradialGradient id='h'%3E%3Cstop offset='0' stop-color='%23fff6e0' stop-opacity='0.95'/%3E%3Cstop offset='0.35' stop-color='%23ffe9b0' stop-opacity='0.45'/%3E%3Cstop offset='1' stop-color='%23ffe9b0' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='15' cy='18' r='13' fill='url%28%23h%29'/%3E%3C/svg%3E") repeat-x 0 0 / 60px 28px;
   mix-blend-mode: screen;
-  animation: nv-luces-corren 1.6s steps(1, end) infinite;
+  /* Brillo que respira despacio: la mitad de los focos sube mientras la
+     otra mitad baja (sin saltos). */
+  animation: nv-luces-respiran 2.8s ease-in-out infinite alternate;
 }
-@keyframes nv-luces-corren {
-  0%   { background-position: 0 0; }
-  50%  { background-position: 30px 0; }
+.nv-carambanos::after {
+  background-position: 30px 0;
+  animation-delay: -2.8s;
+}
+@keyframes nv-luces-respiran {
+  from { opacity: 0.15; }
+  to   { opacity: 0.85; }
 }
 
 /* =============================================================
