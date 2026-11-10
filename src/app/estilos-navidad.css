@@ -6,14 +6,14 @@
  * de esto aplica y la página se ve como siempre.
  *
  * Criterio: noche de invierno, no calcomanías. Luz fría, nieve con
- * profundidad, carámbanos bajo el menú y el trineo de Santa cruzando
+ * profundidad, luces de colores bajo el menú y el trineo de Santa cruzando
  * el cielo. Nada tapa botones ni precios y nada recibe clics. Solo se
  * anima transform/opacity (fluido en celulares de gama baja).
  * No se apaga con "reducir movimiento": es lenta y decorativa, y
  * muchos celulares traen esa opción activada sin que el dueño lo sepa.
  *
  * Capas (z-index): contenido ≤ 20 · nieve y trineos 30 · botón del
- * carrito 40 · menú 50 (con sus carámbanos) · entrada 60 · carrito y
+ * carrito 40 · menú 50 (con sus luces) · entrada 60 · carrito y
  * ventanas 200+.
  * ============================================================= */
 
@@ -39,36 +39,36 @@ html[data-temporada="navidad"] #navbar.scrolled {
   box-shadow: 0 10px 34px -12px rgba(120, 185, 255, 0.4);
 }
 
-/* La insignia "Abierto / Cerrado" baja un poco para no quedar bajo los carámbanos. */
+/* La insignia "Abierto / Cerrado" baja un poco para no quedar bajo las luces. */
 html[data-temporada="navidad"] .estado-flotante { top: calc(9rem + 2rem); }
 
 /* =============================================================
- * CARÁMBANOS bajo el menú (van dentro de #navbar)
+ * LUCES DE NAVIDAD bajo el menú (van dentro de #navbar)
+ * Guirnalda de focos de colores; las luces se encienden en cadena.
+ * (La clase conserva su nombre .nv-carambanos para no tocar el menú.)
  * ============================================================= */
 .nv-carambanos {
   position: absolute;
   left: 0;
   right: 0;
   top: 100%;
-  height: 24px;
+  height: 28px;
+  margin-top: -3px;
   pointer-events: none;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='24' viewBox='0 0 180 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='0.55' stop-color='%23d8ecff' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%239fd0ff' stop-opacity='0.25'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='180' height='3' fill='%23ffffff' fill-opacity='0.9'/%3E%3Cpath fill='url%28%23g%29' d='M3 2 Q4.8 10.5 8.0 17 Q11.2 10.5 13 2Z M16 2 Q17.3 6.2 19.5 10 Q21.7 6.2 23 2Z M26 2 Q28.2 14.3 32.0 23 Q35.8 14.3 38 2Z M42 2 Q43.4 8.1 46.0 13 Q48.6 8.1 50 2Z M54 2 Q55.8 11.8 59.0 19 Q62.2 11.8 64 2Z M68 2 Q69.1 5.0 71.0 8 Q72.9 5.0 74 2Z M78 2 Q80.0 13.0 83.5 21 Q87.0 13.0 89 2Z M93 2 Q94.4 7.4 97.0 12 Q99.6 7.4 101 2Z M105 2 Q107.2 14.9 111.0 24 Q114.8 14.9 117 2Z M121 2 Q122.3 5.6 124.5 9 Q126.7 5.6 128 2Z M132 2 Q133.8 11.2 137.0 18 Q140.2 11.2 142 2Z M146 2 Q147.4 6.8 150.0 11 Q152.6 6.8 154 2Z M158 2 Q160.0 12.4 163.5 20 Q167.0 12.4 169 2Z M172 2 Q173.1 4.3 175.0 7 Q176.9 4.3 178 2Z'/%3E%3C/svg%3E") repeat-x 0 0 / 180px 24px;
-  filter: drop-shadow(0 2px 4px rgba(140, 200, 255, 0.4));
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='28' viewBox='0 0 120 28'%3E%3Cdefs%3E%3CradialGradient id='f0' cx='0.4' cy='0.35' r='0.75'%3E%3Cstop offset='0' stop-color='%23ff5a5a'/%3E%3Cstop offset='1' stop-color='%23c42b2b'/%3E%3C/radialGradient%3E%3CradialGradient id='f1' cx='0.4' cy='0.35' r='0.75'%3E%3Cstop offset='0' stop-color='%235ee08f'/%3E%3Cstop offset='1' stop-color='%23239a52'/%3E%3C/radialGradient%3E%3CradialGradient id='f2' cx='0.4' cy='0.35' r='0.75'%3E%3Cstop offset='0' stop-color='%23ffd36b'/%3E%3Cstop offset='1' stop-color='%23d79a1f'/%3E%3C/radialGradient%3E%3CradialGradient id='f3' cx='0.4' cy='0.35' r='0.75'%3E%3Cstop offset='0' stop-color='%236fb9ff'/%3E%3Cstop offset='1' stop-color='%232f7fd6'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpath d='M0 4 Q15 12 30 4 Q45 12 60 4 Q75 12 90 4 Q105 12 120 4' fill='none' stroke='%23161210' stroke-width='1.6'/%3E%3Crect x='12.8' y='8.6' width='4.4' height='4' rx='1' fill='%23222'/%3E%3Cellipse cx='15' cy='18' rx='4.6' ry='6.4' fill='url%28%23f0%29'/%3E%3Cellipse cx='13.5' cy='15.6' rx='1.3' ry='2' fill='white' fill-opacity='0.75'/%3E%3Crect x='42.8' y='8.6' width='4.4' height='4' rx='1' fill='%23222'/%3E%3Cellipse cx='45' cy='18' rx='4.6' ry='6.4' fill='url%28%23f1%29'/%3E%3Cellipse cx='43.5' cy='15.6' rx='1.3' ry='2' fill='white' fill-opacity='0.75'/%3E%3Crect x='72.8' y='8.6' width='4.4' height='4' rx='1' fill='%23222'/%3E%3Cellipse cx='75' cy='18' rx='4.6' ry='6.4' fill='url%28%23f2%29'/%3E%3Cellipse cx='73.5' cy='15.6' rx='1.3' ry='2' fill='white' fill-opacity='0.75'/%3E%3Crect x='102.8' y='8.6' width='4.4' height='4' rx='1' fill='%23222'/%3E%3Cellipse cx='105' cy='18' rx='4.6' ry='6.4' fill='url%28%23f3%29'/%3E%3Cellipse cx='103.5' cy='15.6' rx='1.3' ry='2' fill='white' fill-opacity='0.75'/%3E%3C/svg%3E") repeat-x 0 0 / 120px 28px;
+  filter: drop-shadow(0 0 3px rgba(255, 220, 160, 0.35));
 }
-/* Un destello de luz que recorre los carámbanos de vez en cuando. */
 .nv-carambanos::after {
   content: '';
   position: absolute;
   inset: 0;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='24' viewBox='0 0 180 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='0.55' stop-color='%23d8ecff' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%239fd0ff' stop-opacity='0.25'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='180' height='3' fill='%23ffffff' fill-opacity='0.9'/%3E%3Cpath fill='url%28%23g%29' d='M3 2 Q4.8 10.5 8.0 17 Q11.2 10.5 13 2Z M16 2 Q17.3 6.2 19.5 10 Q21.7 6.2 23 2Z M26 2 Q28.2 14.3 32.0 23 Q35.8 14.3 38 2Z M42 2 Q43.4 8.1 46.0 13 Q48.6 8.1 50 2Z M54 2 Q55.8 11.8 59.0 19 Q62.2 11.8 64 2Z M68 2 Q69.1 5.0 71.0 8 Q72.9 5.0 74 2Z M78 2 Q80.0 13.0 83.5 21 Q87.0 13.0 89 2Z M93 2 Q94.4 7.4 97.0 12 Q99.6 7.4 101 2Z M105 2 Q107.2 14.9 111.0 24 Q114.8 14.9 117 2Z M121 2 Q122.3 5.6 124.5 9 Q126.7 5.6 128 2Z M132 2 Q133.8 11.2 137.0 18 Q140.2 11.2 142 2Z M146 2 Q147.4 6.8 150.0 11 Q152.6 6.8 154 2Z M158 2 Q160.0 12.4 163.5 20 Q167.0 12.4 169 2Z M172 2 Q173.1 4.3 175.0 7 Q176.9 4.3 178 2Z'/%3E%3C/svg%3E") repeat-x 0 0 / 180px 24px;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='24' viewBox='0 0 180 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='0.55' stop-color='%23d8ecff' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%239fd0ff' stop-opacity='0.25'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='180' height='3' fill='%23ffffff' fill-opacity='0.9'/%3E%3Cpath fill='url%28%23g%29' d='M3 2 Q4.8 10.5 8.0 17 Q11.2 10.5 13 2Z M16 2 Q17.3 6.2 19.5 10 Q21.7 6.2 23 2Z M26 2 Q28.2 14.3 32.0 23 Q35.8 14.3 38 2Z M42 2 Q43.4 8.1 46.0 13 Q48.6 8.1 50 2Z M54 2 Q55.8 11.8 59.0 19 Q62.2 11.8 64 2Z M68 2 Q69.1 5.0 71.0 8 Q72.9 5.0 74 2Z M78 2 Q80.0 13.0 83.5 21 Q87.0 13.0 89 2Z M93 2 Q94.4 7.4 97.0 12 Q99.6 7.4 101 2Z M105 2 Q107.2 14.9 111.0 24 Q114.8 14.9 117 2Z M121 2 Q122.3 5.6 124.5 9 Q126.7 5.6 128 2Z M132 2 Q133.8 11.2 137.0 18 Q140.2 11.2 142 2Z M146 2 Q147.4 6.8 150.0 11 Q152.6 6.8 154 2Z M158 2 Q160.0 12.4 163.5 20 Q167.0 12.4 169 2Z M172 2 Q173.1 4.3 175.0 7 Q176.9 4.3 178 2Z'/%3E%3C/svg%3E") repeat-x 0 0 / 180px 24px;
-  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 1) 50%, transparent 70%) no-repeat;
-  background-size: 30% 100%;
-  animation: nv-brillo 7s ease-in-out 1.5s infinite;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='28' viewBox='0 0 60 28'%3E%3Cdefs%3E%3CradialGradient id='h'%3E%3Cstop offset='0' stop-color='%23fff6e0' stop-opacity='0.95'/%3E%3Cstop offset='0.35' stop-color='%23ffe9b0' stop-opacity='0.45'/%3E%3Cstop offset='1' stop-color='%23ffe9b0' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='15' cy='18' r='13' fill='url%28%23h%29'/%3E%3C/svg%3E") repeat-x 0 0 / 60px 28px;
+  mix-blend-mode: screen;
+  animation: nv-luces-corren 1.6s steps(1, end) infinite;
 }
-@keyframes nv-brillo {
-  0%        { background-position: -45% 0; }
-  55%, 100% { background-position: 145% 0; }
+@keyframes nv-luces-corren {
+  0%   { background-position: 0 0; }
+  50%  { background-position: 30px 0; }
 }
 
 /* =============================================================
@@ -520,7 +520,7 @@ html[data-temporada="navidad"] .cart-fab::before {
     radial-gradient(ellipse 28% 100% at 84% 80%, #fff 0 50%, transparent 72%);
   filter: drop-shadow(0 1px 2px rgba(150, 200, 255, 0.6));
 }
-/* El panel: noche azul, filo de hielo y carámbanos bajo el encabezado. */
+/* El panel: noche azul, filo de hielo y luces bajo el encabezado. */
 html[data-temporada="navidad"] .cart-drawer {
   background:
     radial-gradient(ellipse 90% 40% at 100% 0%, rgba(140, 195, 255, 0.14), transparent 70%),
@@ -538,11 +538,11 @@ html[data-temporada="navidad"] .cart-head::after {
   left: 0;
   right: 0;
   top: 100%;
-  height: 18px;
+  height: 24px;
   pointer-events: none;
   z-index: 2;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='24' viewBox='0 0 180 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='0.55' stop-color='%23d8ecff' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%239fd0ff' stop-opacity='0.25'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='180' height='3' fill='%23ffffff' fill-opacity='0.9'/%3E%3Cpath fill='url%28%23g%29' d='M3 2 Q4.8 10.5 8.0 17 Q11.2 10.5 13 2Z M16 2 Q17.3 6.2 19.5 10 Q21.7 6.2 23 2Z M26 2 Q28.2 14.3 32.0 23 Q35.8 14.3 38 2Z M42 2 Q43.4 8.1 46.0 13 Q48.6 8.1 50 2Z M54 2 Q55.8 11.8 59.0 19 Q62.2 11.8 64 2Z M68 2 Q69.1 5.0 71.0 8 Q72.9 5.0 74 2Z M78 2 Q80.0 13.0 83.5 21 Q87.0 13.0 89 2Z M93 2 Q94.4 7.4 97.0 12 Q99.6 7.4 101 2Z M105 2 Q107.2 14.9 111.0 24 Q114.8 14.9 117 2Z M121 2 Q122.3 5.6 124.5 9 Q126.7 5.6 128 2Z M132 2 Q133.8 11.2 137.0 18 Q140.2 11.2 142 2Z M146 2 Q147.4 6.8 150.0 11 Q152.6 6.8 154 2Z M158 2 Q160.0 12.4 163.5 20 Q167.0 12.4 169 2Z M172 2 Q173.1 4.3 175.0 7 Q176.9 4.3 178 2Z'/%3E%3C/svg%3E") repeat-x 0 0 / 135px 18px;
-  filter: drop-shadow(0 2px 3px rgba(140, 200, 255, 0.4));
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='28' viewBox='0 0 120 28'%3E%3Cdefs%3E%3CradialGradient id='f0' cx='0.4' cy='0.35' r='0.75'%3E%3Cstop offset='0' stop-color='%23ff5a5a'/%3E%3Cstop offset='1' stop-color='%23c42b2b'/%3E%3C/radialGradient%3E%3CradialGradient id='f1' cx='0.4' cy='0.35' r='0.75'%3E%3Cstop offset='0' stop-color='%235ee08f'/%3E%3Cstop offset='1' stop-color='%23239a52'/%3E%3C/radialGradient%3E%3CradialGradient id='f2' cx='0.4' cy='0.35' r='0.75'%3E%3Cstop offset='0' stop-color='%23ffd36b'/%3E%3Cstop offset='1' stop-color='%23d79a1f'/%3E%3C/radialGradient%3E%3CradialGradient id='f3' cx='0.4' cy='0.35' r='0.75'%3E%3Cstop offset='0' stop-color='%236fb9ff'/%3E%3Cstop offset='1' stop-color='%232f7fd6'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpath d='M0 4 Q15 12 30 4 Q45 12 60 4 Q75 12 90 4 Q105 12 120 4' fill='none' stroke='%23161210' stroke-width='1.6'/%3E%3Crect x='12.8' y='8.6' width='4.4' height='4' rx='1' fill='%23222'/%3E%3Cellipse cx='15' cy='18' rx='4.6' ry='6.4' fill='url%28%23f0%29'/%3E%3Cellipse cx='13.5' cy='15.6' rx='1.3' ry='2' fill='white' fill-opacity='0.75'/%3E%3Crect x='42.8' y='8.6' width='4.4' height='4' rx='1' fill='%23222'/%3E%3Cellipse cx='45' cy='18' rx='4.6' ry='6.4' fill='url%28%23f1%29'/%3E%3Cellipse cx='43.5' cy='15.6' rx='1.3' ry='2' fill='white' fill-opacity='0.75'/%3E%3Crect x='72.8' y='8.6' width='4.4' height='4' rx='1' fill='%23222'/%3E%3Cellipse cx='75' cy='18' rx='4.6' ry='6.4' fill='url%28%23f2%29'/%3E%3Cellipse cx='73.5' cy='15.6' rx='1.3' ry='2' fill='white' fill-opacity='0.75'/%3E%3Crect x='102.8' y='8.6' width='4.4' height='4' rx='1' fill='%23222'/%3E%3Cellipse cx='105' cy='18' rx='4.6' ry='6.4' fill='url%28%23f3%29'/%3E%3Cellipse cx='103.5' cy='15.6' rx='1.3' ry='2' fill='white' fill-opacity='0.75'/%3E%3C/svg%3E") repeat-x 0 0 / 103px 24px;
+  filter: drop-shadow(0 0 3px rgba(255, 220, 160, 0.35));
 }
 html[data-temporada="navidad"] .cart-head-title::after {
   content: ' ❄';
