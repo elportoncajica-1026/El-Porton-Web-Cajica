@@ -13,15 +13,17 @@ describe('temporadaDe', () => {
   it('sigue la noche del 31 y se apaga al amanecer del 1 de noviembre', () => {
     expect(temporadaDe(bogota('2026-10-31T22:00:00'), '')).toBe('halloween');
     expect(temporadaDe(bogota('2026-11-01T05:59:00'), '')).toBe('halloween');
-    expect(temporadaDe(bogota('2026-11-01T06:00:00'), '')).toBeNull();
+    expect(temporadaDe(bogota('2026-11-01T06:00:00'), '')).toBe('navidad');
   });
 
   it('no usa la hora UTC: el 31 a las 9 p.m. de Bogotá ya es 1 de noviembre en UTC', () => {
     expect(temporadaDe(new Date('2026-11-01T02:00:00Z'), '')).toBe('halloween');
   });
 
-  it('Navidad: todo diciembre y hasta el amanecer del 7 de enero', () => {
-    expect(temporadaDe(bogota('2026-11-30T23:59:00'), '')).toBeNull();
+  it('Navidad: arranca al terminar Halloween y sigue hasta el amanecer del 7 de enero', () => {
+    expect(temporadaDe(bogota('2026-11-01T05:59:00'), '')).toBe('halloween');
+    expect(temporadaDe(bogota('2026-11-01T06:00:00'), '')).toBe('navidad');
+    expect(temporadaDe(bogota('2026-11-10T12:00:00'), '')).toBe('navidad');
     expect(temporadaDe(bogota('2026-12-01T00:00:00'), '')).toBe('navidad');
     expect(temporadaDe(bogota('2026-12-24T20:00:00'), '')).toBe('navidad');
     expect(temporadaDe(bogota('2027-01-06T23:00:00'), '')).toBe('navidad');
@@ -30,7 +32,7 @@ describe('temporadaDe', () => {
   });
 
   it('el resto del año está apagada', () => {
-    expect(temporadaDe(bogota('2026-11-15T20:00:00'), '')).toBeNull();
+    expect(temporadaDe(bogota('2027-01-20T20:00:00'), '')).toBeNull();
     expect(temporadaDe(bogota('2027-03-10T12:00:00'), '')).toBeNull();
   });
 

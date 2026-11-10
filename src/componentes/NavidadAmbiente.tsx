@@ -128,15 +128,27 @@ export default function NavidadAmbiente() {
     }
 
     function medir() {
-      W = Math.max(1, window.innerWidth);
-      H = Math.max(1, window.innerHeight);
+      const w = Math.max(1, window.innerWidth);
+      const h = Math.max(1, window.innerHeight);
+      const cambioAncho = Math.abs(w - W) > 1;
+      // En el celular, al hacer scroll la barra del navegador se esconde y
+      // aparece: solo cambia el alto, y eso dispara "resize" a cada rato.
+      // El lienzo nunca se encoge por eso (sobra abajo, la capa lo recorta)
+      // y los copos se conservan: si no, la nieve saltaba al bajar.
+      if (copos.length && !cambioAncho && h <= H) return;
+      const escalaX = copos.length && W > 0 ? w / W : 1;
+      W = w;
+      H = Math.max(h, cambioAncho ? 0 : H);
       ajustar(canvas!, ctx!);
       if (canvasE && ctxE) ajustar(canvasE, ctxE);
+      if (copos.length) {
+        // Giró el celular o cambió el ancho de la ventana: se reubican, no se rehacen.
+        for (const c of copos) c.x *= escalaX;
+        return;
+      }
+      // Al arrancar todos vienen desde arriba (ráfaga de entrada).
       const total = W < 768 ? 70 : 130;
-      // Al arrancar todos vienen desde arriba (ráfaga de entrada); al
-      // redimensionar se reparten por la pantalla para que no quede un vacío.
-      const desdeArriba = copos.length === 0;
-      copos = Array.from({ length: total }, () => nuevoCopo(desdeArriba ? -azar() * H * 1.2 : azar() * H));
+      copos = Array.from({ length: total }, () => nuevoCopo(-azar() * H * 1.2));
     }
 
     function nuevoCopo(y: number): Copo {

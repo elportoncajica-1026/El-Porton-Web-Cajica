@@ -486,3 +486,75 @@ html[data-temporada="navidad"] .rd-combo-full::after {
 /* De "Nosotros" en adelante el fondo negro se vuelve azul translúcido:
    así se sigue viendo el cielo. */
 html[data-temporada="navidad"] .page-dark { background: rgba(5, 12, 28, 0.5); }
+
+/* =============================================================
+ * "MOSTRAR MÁS" DE LA CARTA
+ * El difuminado negro se veía como una franja sobre el cielo azul:
+ * en Navidad las tarjetas se desvanecen hacia transparente.
+ * ============================================================= */
+html[data-temporada="navidad"] .catalogo-fade { display: none; }
+html[data-temporada="navidad"] .catalogo-grid-wrap:has(> .catalogo-fade) > .catalogo-grid {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 10rem), transparent 97%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 10rem), transparent 97%);
+}
+
+/* =============================================================
+ * CARRITO
+ * ============================================================= */
+/* Botón flotante: nieve encima y un brillo frío. */
+html[data-temporada="navidad"] .cart-fab {
+  box-shadow: 0 10px 28px -6px rgba(229, 62, 62, 0.55), 0 0 22px -4px rgba(150, 205, 255, 0.55);
+}
+html[data-temporada="navidad"] .cart-fab::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: -6px;
+  height: 12px;
+  border-radius: 999px 999px 4px 4px;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 30% 100% at 18% 80%, #fff 0 50%, transparent 72%),
+    radial-gradient(ellipse 34% 120% at 52% 75%, #fff 0 50%, transparent 72%),
+    radial-gradient(ellipse 28% 100% at 84% 80%, #fff 0 50%, transparent 72%);
+  filter: drop-shadow(0 1px 2px rgba(150, 200, 255, 0.6));
+}
+/* El panel: noche azul, filo de hielo y carámbanos bajo el encabezado. */
+html[data-temporada="navidad"] .cart-drawer {
+  background:
+    radial-gradient(ellipse 90% 40% at 100% 0%, rgba(140, 195, 255, 0.14), transparent 70%),
+    linear-gradient(180deg, #0d1a33 0%, #0b1426 40%, #0a0f1c 100%);
+  border-left: 1px solid rgba(170, 215, 255, 0.28);
+  box-shadow: -20px 0 50px rgba(0, 0, 0, 0.6), -2px 0 24px -6px rgba(120, 185, 255, 0.35);
+}
+html[data-temporada="navidad"] .cart-head {
+  position: relative;
+  border-bottom-color: rgba(190, 225, 255, 0.35);
+}
+html[data-temporada="navidad"] .cart-head::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 18px;
+  pointer-events: none;
+  z-index: 2;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='24' viewBox='0 0 180 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff' stop-opacity='0.95'/%3E%3Cstop offset='0.55' stop-color='%23d8ecff' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%239fd0ff' stop-opacity='0.25'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='180' height='3' fill='%23ffffff' fill-opacity='0.9'/%3E%3Cpath fill='url%28%23g%29' d='M3 2 Q4.8 10.5 8.0 17 Q11.2 10.5 13 2Z M16 2 Q17.3 6.2 19.5 10 Q21.7 6.2 23 2Z M26 2 Q28.2 14.3 32.0 23 Q35.8 14.3 38 2Z M42 2 Q43.4 8.1 46.0 13 Q48.6 8.1 50 2Z M54 2 Q55.8 11.8 59.0 19 Q62.2 11.8 64 2Z M68 2 Q69.1 5.0 71.0 8 Q72.9 5.0 74 2Z M78 2 Q80.0 13.0 83.5 21 Q87.0 13.0 89 2Z M93 2 Q94.4 7.4 97.0 12 Q99.6 7.4 101 2Z M105 2 Q107.2 14.9 111.0 24 Q114.8 14.9 117 2Z M121 2 Q122.3 5.6 124.5 9 Q126.7 5.6 128 2Z M132 2 Q133.8 11.2 137.0 18 Q140.2 11.2 142 2Z M146 2 Q147.4 6.8 150.0 11 Q152.6 6.8 154 2Z M158 2 Q160.0 12.4 163.5 20 Q167.0 12.4 169 2Z M172 2 Q173.1 4.3 175.0 7 Q176.9 4.3 178 2Z'/%3E%3C/svg%3E") repeat-x 0 0 / 135px 18px;
+  filter: drop-shadow(0 2px 3px rgba(140, 200, 255, 0.4));
+}
+html[data-temporada="navidad"] .cart-head-title::after {
+  content: ' ❄';
+  color: #a9dbff;
+  font-size: 0.8em;
+}
+/* Las líneas del pedido y el botón de WhatsApp con un toque de hielo. */
+html[data-temporada="navidad"] .cart-item {
+  border-color: rgba(170, 215, 255, 0.16);
+}
+html[data-temporada="navidad"] .cart-empty-emoji::after { content: ' 🎄'; }
+html[data-temporada="navidad"] .cart-foot {
+  background: #0a1222;
+  border-top-color: rgba(170, 215, 255, 0.2);
+}
