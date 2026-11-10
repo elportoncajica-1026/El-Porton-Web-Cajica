@@ -7,7 +7,6 @@ import './globals.css';
 import './estilos-v1.css';
 import './estilos-rediseno.css';
 import './estilos-temporada.css';
-import './estilos-navidad.css';
 
 /* =============================================================
  * FUENTES
@@ -110,7 +109,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       suppressHydrationWarning
     >
       <head>
-        {/* Decoración por fecha (Halloween, Navidad): va antes de pintar para que no parpadee. */}
+        {/* Decoración por fecha (Halloween): va antes de pintar para que no parpadee. */}
         <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMPORADA }} />
       </head>
       {/* El proveedor envuelve toda la aplicación: el carrito debe

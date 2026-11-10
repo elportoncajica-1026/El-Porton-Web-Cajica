@@ -20,25 +20,14 @@ describe('temporadaDe', () => {
     expect(temporadaDe(new Date('2026-11-01T02:00:00Z'), '')).toBe('halloween');
   });
 
-  it('Navidad: todo diciembre y hasta el amanecer del 7 de enero', () => {
-    expect(temporadaDe(bogota('2026-11-30T23:59:00'), '')).toBeNull();
-    expect(temporadaDe(bogota('2026-12-01T00:00:00'), '')).toBe('navidad');
-    expect(temporadaDe(bogota('2026-12-24T20:00:00'), '')).toBe('navidad');
-    expect(temporadaDe(bogota('2027-01-06T23:00:00'), '')).toBe('navidad');
-    expect(temporadaDe(bogota('2027-01-07T05:59:00'), '')).toBe('navidad');
-    expect(temporadaDe(bogota('2027-01-07T06:00:00'), '')).toBeNull();
-  });
-
   it('el resto del año está apagada', () => {
-    expect(temporadaDe(bogota('2026-11-15T20:00:00'), '')).toBeNull();
+    expect(temporadaDe(bogota('2026-12-24T20:00:00'), '')).toBeNull();
     expect(temporadaDe(bogota('2027-03-10T12:00:00'), '')).toBeNull();
   });
 
   it('se puede forzar o apagar con ?temporada=', () => {
     expect(temporadaDe(bogota('2027-03-10T12:00:00'), '?temporada=halloween')).toBe('halloween');
     expect(temporadaDe(bogota('2026-10-31T20:00:00'), '?x=1&temporada=no')).toBeNull();
-    expect(temporadaDe(bogota('2027-03-10T12:00:00'), '?temporada=navidad')).toBe('navidad');
-    expect(temporadaDe(bogota('2026-12-24T20:00:00'), '?temporada=no')).toBeNull();
   });
 
   it('el script del <head> funciona solo, sin imports', () => {
