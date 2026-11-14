@@ -59,7 +59,7 @@ export default function Ventas({
   const [encima, setEncima] = useState<number | null>(null);
 
   const cargar = useCallback(async () => {
-    setCargando(true);
+    // Sin "Cargando…" al refrescar: se ven los datos de antes hasta que llegan los nuevos.
     setError(null);
     setFalta(false);
 

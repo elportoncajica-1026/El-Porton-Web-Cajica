@@ -39,7 +39,7 @@ export default function Visitas({ recargarToken }: { recargarToken: number }) {
   const [error, setError] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
-    setCargando(true);
+    // Sin "Cargando…" al refrescar: se ven los datos de antes hasta que llegan los nuevos.
     setFalta(false);
     setError(null);
 

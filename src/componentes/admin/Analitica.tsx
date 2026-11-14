@@ -71,7 +71,7 @@ export default function Analitica({
   const [dia, setDia] = useState(() => fechaBogota(new Date()));
 
   const cargar = useCallback(async () => {
-    setCargando(true);
+    // Sin "Cargando…" al refrescar: se ven los datos de antes hasta que llegan los nuevos.
     setAviso(null);
 
     const { data: t, error: errT } = await sb.rpc('ventas_totales');

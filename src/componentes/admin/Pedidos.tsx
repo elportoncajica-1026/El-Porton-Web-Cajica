@@ -59,7 +59,7 @@ export default function Pedidos({
   const cargar = useCallback(
     async (desde: number) => {
       setError(null);
-      if (desde === 0) setCargando(true);
+      // Sin "Cargando…" al refrescar: la lista de antes sigue visible hasta que llega la nueva.
 
       let consulta = sb.from('orders').select('*', { count: 'exact' });
       if (filtro !== 'todos') consulta = consulta.in('status', VALORES_EN_BD[filtro]);

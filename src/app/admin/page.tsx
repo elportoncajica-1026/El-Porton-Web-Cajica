@@ -39,6 +39,11 @@ import Resumen, { type Seccion } from '@/componentes/admin/Resumen';
 import ModalSeguridad from '@/componentes/admin/ModalSeguridad';
 import { Icono, type NombreIcono } from '@/componentes/Iconos';
 
+/** Secciones que solo muestran datos y se refrescan solas (ver "Datos en vivo"). */
+const SECCIONES_EN_VIVO: readonly Seccion[] = ['inicio', 'pedidos', 'ventas', 'visitas'];
+/** Cada cuánto se refrescan con el panel a la vista. */
+const REFRESCO_MS = 15_000;
+
 const TITULOS: Record<Seccion, { titulo: string; sub: string }> = {
   inicio: { titulo: 'Inicio', sub: 'Resumen general de tu negocio' },
   pedidos: { titulo: 'Pedidos', sub: 'Cambia el estado de cada pedido con un toque' },
@@ -97,6 +102,34 @@ export default function PanelAdmin() {
       vigente = false;
     };
   }, [estado, recargarToken, contadorToken]);
+
+  /* ---------- Datos en vivo ----------
+     Cada 15 s (solo con el panel a la vista) y en cuanto se vuelve a la
+     ventana, se vuelven a pedir los datos de las secciones que solo
+     MUESTRAN información: así un cambio de estado hecho desde otro
+     celular, un pedido borrado o una visita nueva aparecen sin tocar
+     nada. Menú, Precios POS y Tiempos NO se refrescan solos: ahí se
+     edita y un refresco podría borrar lo que se está escribiendo. */
+  useEffect(() => {
+    if (estado !== 'dentro') return;
+    if (!SECCIONES_EN_VIVO.includes(seccion)) return;
+    const refrescar = () => {
+      if (document.visibilityState !== 'visible') return;
+      setRecargar((n) => n + 1);
+      setContadorToken((n) => n + 1);
+    };
+    const reloj = window.setInterval(refrescar, REFRESCO_MS);
+    const alVolver = () => refrescar();
+    document.addEventListener('visibilitychange', alVolver);
+    window.addEventListener('focus', alVolver);
+    window.addEventListener('online', alVolver);
+    return () => {
+      window.clearInterval(reloj);
+      document.removeEventListener('visibilitychange', alVolver);
+      window.removeEventListener('focus', alVolver);
+      window.removeEventListener('online', alVolver);
+    };
+  }, [estado, seccion]);
 
   /* ---------- Pedidos en vivo: campana, aviso y notificación ----------
      El vigía consulta cada 10 s (estado/vigia-pedidos.ts). Al llegar un

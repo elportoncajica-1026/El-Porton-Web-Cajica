@@ -12,6 +12,9 @@ import './estilos-panel.css';
 
 export const metadata: Metadata = {
   title: 'Panel · El Portón Cajicá',
+  /* Al instalar el panel en el computador del local, que abra en /admin
+     con el ícono del Portón (y no en la carta). */
+  manifest: '/admin.webmanifest',
   /* Que ningún buscador lo indexe ni lo siga. El panel de v1 depende
      solo de robots.txt, que es una petición que se puede ignorar; esta
      etiqueta es una instrucción directa en la propia página. */
