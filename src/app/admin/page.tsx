@@ -132,7 +132,8 @@ export default function PanelAdmin() {
   }, [estado, seccion]);
 
   /* ---------- Pedidos en vivo: campana, aviso y notificación ----------
-     El vigía consulta cada 10 s (estado/vigia-pedidos.ts). Al llegar un
+     El vigía avisa al instante por Realtime y revisa cada 10 s de respaldo
+     (estado/vigia-pedidos.ts). Al llegar un
      pedido se refrescan solos el contador y la sección abierta. */
   const [sonido, setSonido] = useState(() => {
     try {

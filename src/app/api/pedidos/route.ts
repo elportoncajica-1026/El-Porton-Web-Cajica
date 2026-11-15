@@ -3,6 +3,7 @@ import { obtenerMenu } from '@/lib/menu-servidor';
 import { validarPedido } from '@/lib/precio';
 import { direccionAGuardar, esTipoPedido } from '@/lib/tipo-pedido';
 import { supabaseRest } from '@/lib/supabase';
+import { CANAL_PEDIDOS } from '@/lib/vigia-pedidos';
 import {
   crearLimitador,
   esTrampa,
@@ -108,6 +109,32 @@ async function guardarPedido(fila: unknown): Promise<Guardado> {
   }
 
   return { id: null, error: ultimo };
+}
+
+/**
+ * Toca el "timbre" del panel: un mensaje de Supabase Realtime (broadcast)
+ * en el canal `pedidos`. El panel lo escucha y consulta la base al
+ * instante, en vez de esperar a su siguiente revisión (que el navegador
+ * frena cuando la ventana está minimizada).
+ *
+ * El mensaje no lleva datos del pedido: solo dice "revisa". Por eso no
+ * importa que el canal sea público. Nunca lanza ni bloquea la venta; se
+ * espera (máx. 1,5 s) porque en Vercel una promesa suelta puede cortarse.
+ */
+async function avisarPanel(): Promise<void> {
+  try {
+    await supabaseRest(
+      '/realtime/v1/api/broadcast',
+      {
+        method: 'POST',
+        body: JSON.stringify({ messages: [{ topic: CANAL_PEDIDOS, event: 'nuevo', payload: {} }] }),
+        timeoutMs: 1500,
+      },
+      'servidor',
+    );
+  } catch {
+    /* si falla, el panel lo verá en su revisión periódica */
+  }
 }
 
 export async function POST(req: Request) {
@@ -221,6 +248,7 @@ export async function POST(req: Request) {
   }
 
   const guardado = await guardarPedido(fila);
+  if (guardado.id) await avisarPanel();
 
   if (guardado.error) {
     // NO se bloquea el pedido. El cliente recibe los números correctos

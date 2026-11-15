@@ -11,6 +11,9 @@
  * del cliente no interviene: `created_at` lo pone la base.
  * ============================================================= */
 
+/** Canal de Supabase Realtime por el que /api/pedidos "toca el timbre" del panel. */
+export const CANAL_PEDIDOS = 'pedidos';
+
 export type Huella = { id: string; created_at: string };
 
 export type EstadoVigia = {

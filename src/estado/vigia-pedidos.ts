@@ -3,20 +3,26 @@
 /* =============================================================
  * VIGÍA DE PEDIDOS (hook del panel)
  *
- * Cada 10 s, y en cuanto la pestaña vuelve a estar a la vista, pide
- * los últimos 10 pedidos (solo 4 columnas) y avisa de los que entraron
- * desde la última vez (lib/vigia-pedidos.ts decide cuáles son nuevos).
+ * Pide los últimos 10 pedidos (solo 4 columnas) y avisa de los que
+ * entraron desde la última vez (lib/vigia-pedidos.ts decide cuáles son
+ * nuevos). Revisa en tres momentos:
  *
- * Por qué consultar y no Supabase Realtime: Realtime exige activar la
- * tabla en la publicación de la base (un paso manual en Supabase) y
- * mantener un websocket que se cae con el celular en reposo. Una
- * consulta mínima cada 10 s funciona ya, sin tocar la base, y se
- * recupera sola. El costo es despreciable: una fila pequeña × 10.
+ *   1. AL INSTANTE: /api/pedidos manda un "timbre" por Supabase Realtime
+ *      (broadcast en el canal `pedidos`) apenas guarda un pedido. Los
+ *      mensajes del websocket no los frena el navegador con la ventana
+ *      minimizada, a diferencia de los relojes (setInterval), que en
+ *      segundo plano pueden atrasarse hasta un minuto.
+ *   2. Cada 10 s, como respaldo si el websocket se cayó.
+ *   3. Al volver la pestaña a la vista o recuperar internet.
+ *
+ * El timbre no trae datos del pedido (solo dice "revisa"): los datos se
+ * leen siempre de la base con la sesión del administrador. Broadcast no
+ * exige activar nada en la base de datos.
  * ============================================================= */
 
 import { useEffect, useRef } from 'react';
 import { supabaseNavegador } from '@/lib/supabase-navegador';
-import { revisarLlegadas, VIGIA_INICIAL, type EstadoVigia } from '@/lib/vigia-pedidos';
+import { CANAL_PEDIDOS, revisarLlegadas, VIGIA_INICIAL, type EstadoVigia } from '@/lib/vigia-pedidos';
 
 export type PedidoLlegado = { id: string; created_at: string; customer_name: string; subtotal: number };
 
@@ -62,8 +68,22 @@ export function useVigiaPedidos(activo: boolean, alLlegar: (nuevos: PedidoLlegad
     document.addEventListener('visibilitychange', alVolver);
     window.addEventListener('online', alVolver);
 
+    // El timbre puede llegar mientras otra revisión está en curso: se
+    // repite al terminar para no perder el pedido recién guardado.
+    let pendiente = false;
+    const alTimbre = async () => {
+      if (ocupado) { pendiente = true; return; }
+      await revisar();
+      if (pendiente) { pendiente = false; void alTimbre(); }
+    };
+    const timbre = sb
+      .channel(CANAL_PEDIDOS)
+      .on('broadcast', { event: 'nuevo' }, () => void alTimbre())
+      .subscribe();
+
     return () => {
       vivo = false;
+      void sb.removeChannel(timbre);
       window.clearInterval(reloj);
       document.removeEventListener('visibilitychange', alVolver);
       window.removeEventListener('online', alVolver);
