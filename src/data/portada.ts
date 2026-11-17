@@ -39,3 +39,20 @@ export const CONTACTO = {
   instagramUsuario: '@elportoncajica',
   mapa: 'https://maps.app.goo.gl/B1Yka6GRnqEvMZ6u6',
 } as const;
+
+/* =============================================================
+ * SEGUNDA CARA DEL CARRITO (tras enviar el pedido): seguir y reseñar
+ *
+ * Enlaces oficiales confirmados por el cliente (16 nov 2026). Nunca se
+ * adivina un enlace: una red nueva se agrega aquí solo con su URL real.
+ * ============================================================= */
+export const SEGUIR = [
+  { clave: 'instagram', icono: 'instagram', texto: 'Síguenos en Instagram', detalle: CONTACTO.instagramUsuario, url: CONTACTO.instagram },
+  { clave: 'tiktok', icono: 'tiktok', texto: 'Síguenos en TikTok', detalle: '@el.porton.cajica', url: 'https://www.tiktok.com/@el.porton.cajica' },
+  { clave: 'facebook', icono: 'facebook', texto: 'Síguenos en Facebook', detalle: 'El Portón Cajicá', url: 'https://www.facebook.com/elportoncajica' },
+] as const;
+
+/** Reseñas en Google. Por ahora lleva a la ficha del restaurante en Google Maps (de ahí
+ *  se toca "Escribir una reseña"). Cuando el perfil de Google tenga su enlace directo de
+ *  "Pedir reseñas", se reemplaza aquí y listo. */
+export const RESENA_GOOGLE: string = CONTACTO.mapa;

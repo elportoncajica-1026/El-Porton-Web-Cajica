@@ -85,6 +85,29 @@ button.pago-opt {
   cursor: progress;
 }
 
+/* Último paso tras enviar: abrir WhatsApp y tocar "Enviar". */
+.cart-enviado .cart-send { text-decoration: none; }
+.cart-enviado-nota { color: var(--gris); font-size: 0.82rem; margin: 0.8rem 0 1.2rem; }
+.cart-enviado-cerrar {
+  background: transparent; color: #fff; font-weight: 600; font-size: 0.9rem;
+  padding: 0.6rem 1.2rem; border-radius: 0.7rem; cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.cart-enviado-cerrar:hover { border-color: #fff; }
+
+/* Segunda cara: gracias, seguirnos y reseña. */
+.cart-gracias-lista { display: flex; flex-direction: column; gap: 0.7rem; margin: 0 0 1.4rem; text-align: left; }
+.cart-gracias-btn {
+  display: flex; align-items: center; gap: 0.85rem;
+  padding: 0.85rem 1rem; border-radius: 0.8rem; text-decoration: none; color: #fff;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.16);
+  transition: border-color .2s ease, background .2s ease;
+}
+.cart-gracias-btn:hover { border-color: var(--rojo); background: rgba(229, 62, 62, 0.1); }
+.cart-gracias-btn svg, .cart-gracias-emoji { flex: 0 0 auto; width: 1.4rem; font-size: 1.3rem; line-height: 1; text-align: center; }
+.cart-gracias-btn strong { display: block; font-size: 0.98rem; }
+.cart-gracias-btn small { display: block; margin-top: 0.15rem; color: var(--gris); font-size: 0.8rem; }
+
 /* =============================================================
  * CARRUSEL DEL HERO
  *

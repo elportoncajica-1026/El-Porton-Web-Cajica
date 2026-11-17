@@ -31,6 +31,7 @@ import {
 import { rangoDia } from '@/lib/panel';
 import SelectorDia from './SelectorDia';
 import { TIPO_PEDIDO, tipoDeDireccion } from '@/lib/tipo-pedido';
+import { nombreConCategoria } from '@/lib/nombre-plato';
 
 const POR_PAGINA = 25;
 
@@ -249,7 +250,7 @@ function DetallePedido({ pedido: p, alCerrar }: { pedido: Pedido; alCerrar: () =
                 <li key={i}>
                   <div className="hp-item-linea">
                     <span>
-                      <b>{it.qty}×</b> {it.name}
+                      <b>{it.qty}×</b> {nombreConCategoria(it.name, it.cat)}
                     </span>
                     {typeof it.unitPrice === 'number' && <span>{dinero(it.unitPrice * it.qty)}</span>}
                   </div>

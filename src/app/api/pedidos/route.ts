@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import { obtenerMenu } from '@/lib/menu-servidor';
 import { validarPedido } from '@/lib/precio';
 import { direccionAGuardar, esTipoPedido } from '@/lib/tipo-pedido';
@@ -118,8 +118,8 @@ async function guardarPedido(fila: unknown): Promise<Guardado> {
  * frena cuando la ventana está minimizada).
  *
  * El mensaje no lleva datos del pedido: solo dice "revisa". Por eso no
- * importa que el canal sea público. Nunca lanza ni bloquea la venta; se
- * espera (máx. 1,5 s) porque en Vercel una promesa suelta puede cortarse.
+ * importa que el canal sea público. Nunca lanza ni bloquea la venta. Se
+ * ejecuta con `after()` para que Vercel no corte la tarea al responder.
  */
 async function avisarPanel(): Promise<void> {
   try {
@@ -248,7 +248,10 @@ export async function POST(req: Request) {
   }
 
   const guardado = await guardarPedido(fila);
-  if (guardado.id) await avisarPanel();
+  // Después de responder (no antes): el cliente no espera por el timbre, y
+  // WhatsApp se abre más rápido (los navegadores bloquean la ventana si
+  // pasa demasiado tiempo entre el toque y la apertura).
+  if (guardado.id) after(avisarPanel);
 
   if (guardado.error) {
     // NO se bloquea el pedido. El cliente recibe los números correctos

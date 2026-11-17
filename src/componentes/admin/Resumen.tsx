@@ -25,6 +25,7 @@ import { estadoEn } from '@/lib/horario';
 import { dinero, ETIQUETA_ESTADO, estadoDe, type Pedido } from '@/lib/pedidos-admin';
 import { coordX, coordY, escalaY, formatoCorto, marcasY, rutaArea, rutaLinea, type FilaTop, type Marco, type PuntoSerie } from '@/lib/ventas';
 import { diaAnterior, fechaBogota, haceCuanto, rangoDia, resumenDia, variacion, type ResumenDia } from '@/lib/panel';
+import { nombreConCategoria } from '@/lib/nombre-plato';
 import ExportarCSV from './ExportarCSV';
 import SelectorDia from './SelectorDia';
 import { Contador, Esqueleto } from './Animaciones';
@@ -221,7 +222,7 @@ export default function Resumen({
                     <tr key={p.id} style={{ '--i': i } as React.CSSProperties}>
                       <td>{p.customer_name}</td>
                       <td className="pn-tenue">
-                        {(p.items ?? []).map((it) => `${it.name} x${it.qty}`).join(', ')}
+                        {(p.items ?? []).map((it) => `${nombreConCategoria(it.name, it.cat)} x${it.qty}`).join(', ')}
                       </td>
                       <td>{dinero(p.subtotal)}</td>
                       <td>

@@ -33,6 +33,7 @@ import {
 import { fechaLarga, rangoDia } from '@/lib/panel';
 import SelectorDia from './SelectorDia';
 import { TIPO_PEDIDO, tipoDeDireccion } from '@/lib/tipo-pedido';
+import { nombreConCategoria } from '@/lib/nombre-plato';
 
 const POR_PAGINA = 50;
 
@@ -198,7 +199,7 @@ export default function Pedidos({
                 const detalle = detallesDeLinea(it);
                 return (
                   <li key={i}>
-                    • ({it.qty}x) {it.name}
+                    • ({it.qty}x) {nombreConCategoria(it.name, it.cat)}
                     {detalle && <span style={{ color: '#71717a' }}> — {detalle}</span>}
                   </li>
                 );

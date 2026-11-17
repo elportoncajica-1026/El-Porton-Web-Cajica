@@ -15,6 +15,7 @@
 
 import type { DatosFormulario } from '@/types/carrito';
 import { TIPO_PEDIDO, horaLegible } from '@/lib/tipo-pedido';
+import { nombreConCategoria } from '@/lib/nombre-plato';
 
 /** Una línea tal y como la devuelve el servidor. */
 export type LineaPedido = {
@@ -53,7 +54,9 @@ export function construirMensaje(
   L.push(DIVISOR, '');
 
   for (const it of lineas) {
-    L.push(`• (${it.qty})x ${it.name} — ${fmt(it.unitPrice * it.qty)}`);
+    // El tipo de plato va delante cuando el nombre es ambiguo
+    // ("Mazorcada Tres Carnes" vs "Hamburguesa Tres Carnes").
+    L.push(`• (${it.qty})x ${nombreConCategoria(it.name, it.cat)} — ${fmt(it.unitPrice * it.qty)}`);
 
     const variacion: string[] = [];
     // "Porción" se omite: es una etiqueta interna, no aporta nada a

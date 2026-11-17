@@ -26,10 +26,17 @@ import { construirMensaje, urlWhatsApp, type LineaPedido } from '@/lib/whatsapp'
 import { registrarEvento } from '@/lib/rastreo-navegador';
 import { TIPO_PEDIDO, TIPOS_EN_CARRITO, seOfreceEnCarrito } from '@/lib/tipo-pedido';
 import { TIEMPOS_POR_DEFECTO, textoAviso, type Tiempos } from '@/lib/tiempos';
-import { CONTACTO } from '@/data/portada';
+import { CONTACTO, RESENA_GOOGLE, SEGUIR } from '@/data/portada';
+import { Icono } from './Iconos';
 
 const fmt = (n: number) => '$' + n.toLocaleString('es-CO');
 const TELEFONO = (BRAND as { whatsapp: string }).whatsapp;
+
+/* El enlace de WhatsApp del último pedido se recuerda un rato (solo en esta
+   pestaña) para poder volver a abrirlo si no se abrió o si no se tocó Enviar. */
+const CLAVE_ULTIMO_ENVIO = 'porton_ultimo_envio';
+const VIGENCIA_ENVIO_MS = 90 * 60 * 1000;
+const PREFIJO_ENLACE = 'https://api.whatsapp.com/send';
 
 export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: Tiempos }) {
   const { items, subtotal, unidades, hidratado, cambiarQty, quitar, vaciar } = useCarrito();
@@ -40,6 +47,10 @@ export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: T
   const [enviando, setEnviando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
   const [rebote, setRebote] = useState(false);
+  /* Enlace de WhatsApp del pedido recién enviado (null = ninguno). */
+  const [enviado, setEnviado] = useState<string | null>(null);
+  /* Segunda cara: agradecimiento + seguirnos + reseña (tras tocar "Ya lo envié"). */
+  const [gracias, setGracias] = useState(false);
   const trampa = useRef<HTMLInputElement>(null);
 
   /* Datos del cliente guardados (solo en el navegador). */
@@ -50,6 +61,39 @@ export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: T
       /* almacenamiento bloqueado: se sigue con el formulario vacío */
     }
   }, []);
+
+  /* Si la pestaña se recargó al volver de WhatsApp, se recupera el último paso. */
+  useEffect(() => {
+    try {
+      const crudo = sessionStorage.getItem(CLAVE_ULTIMO_ENVIO);
+      if (!crudo) return;
+      const g = JSON.parse(crudo) as { url?: string; ts?: number };
+      if (g.url?.startsWith(PREFIJO_ENLACE) && g.ts && Date.now() - g.ts < VIGENCIA_ENVIO_MS) setEnviado(g.url);
+      else sessionStorage.removeItem(CLAVE_ULTIMO_ENVIO);
+    } catch {
+      /* almacenamiento bloqueado: simplemente no se recupera */
+    }
+  }, []);
+
+  function descartarEnvio() {
+    setEnviado(null);
+    try {
+      sessionStorage.removeItem(CLAVE_ULTIMO_ENVIO);
+    } catch {
+      /* nada que hacer */
+    }
+  }
+
+  /* Si la persona empieza otro pedido, el aviso del anterior sobra. */
+  useEffect(() => {
+    if (items.length > 0 && enviado) descartarEnvio();
+    if (items.length > 0 && gracias) setGracias(false);
+  }, [items.length, enviado, gracias]);
+
+  /* Al cerrar el cajón, la segunda cara no se queda esperando. */
+  useEffect(() => {
+    if (!abierto) setGracias(false);
+  }, [abierto]);
 
   /* Animación del botón flotante al añadir algo. */
   const unidadesPrevias = useRef(0);
@@ -134,10 +178,20 @@ export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: T
     }
 
     registrarEvento('order_sent', { total: totalFinal });
-    window.open(urlWhatsApp(construirMensaje(lineas, datos, totalFinal), TELEFONO), '_blank');
+    const enlace = urlWhatsApp(construirMensaje(lineas, datos, totalFinal), TELEFONO);
+    // Se intenta abrir WhatsApp solo, pero los navegadores del celular a
+    // veces lo bloquean (la ventana se abre tras esperar al servidor) y
+    // además la persona tiene que tocar "Enviar" dentro de WhatsApp. Por eso
+    // el cajón NO se cierra: queda el botón "Abrir WhatsApp" a la vista.
+    window.open(enlace, '_blank');
+    setEnviado(enlace);
+    try {
+      sessionStorage.setItem(CLAVE_ULTIMO_ENVIO, JSON.stringify({ url: enlace, ts: Date.now() }));
+    } catch {
+      /* sin persistencia: el aviso se muestra igual mientras la pestaña siga abierta */
+    }
 
     vaciar();
-    setAbierto(false);
     setEnviando(false);
     setIntento(false);
   }
@@ -183,7 +237,59 @@ export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: T
         </header>
 
         <div className="cart-body">
-          {items.length === 0 ? (
+          {items.length === 0 && gracias ? (
+            <div className="cart-empty cart-gracias">
+              <p className="cart-empty-emoji">🙌</p>
+              <p className="cart-empty-title">¡Gracias por pedir en El Portón!</p>
+              <p className="cart-empty-sub">Te confirmamos por WhatsApp. Mientras tanto, acompáñanos:</p>
+              <div className="cart-gracias-lista">
+                {SEGUIR.map((r) => (
+                  <a key={r.clave} className="cart-gracias-btn" href={r.url} target="_blank" rel="noopener">
+                    <Icono nombre={r.icono} size={22} />
+                    <span>
+                      <strong>{r.texto}</strong>
+                      <small>{r.detalle}</small>
+                    </span>
+                  </a>
+                ))}
+                <a className="cart-gracias-btn" href={RESENA_GOOGLE} target="_blank" rel="noopener">
+                  <span className="cart-gracias-emoji" aria-hidden="true">
+                    ⭐
+                  </span>
+                  <span>
+                    <strong>Cuéntanos cómo te fue</strong>
+                    <small>Cuando recibas tu pedido, déjanos tu reseña en Google</small>
+                  </span>
+                </a>
+              </div>
+              <button type="button" className="cart-enviado-cerrar" onClick={() => setAbierto(false)}>
+                Listo
+              </button>
+            </div>
+          ) : items.length === 0 && enviado ? (
+            <div className="cart-empty cart-enviado">
+              <p className="cart-empty-emoji">📲</p>
+              <p className="cart-empty-title">Último paso: toca Enviar en WhatsApp</p>
+              <p className="cart-empty-sub">
+                Tu pedido ya está escrito en WhatsApp. Ábrelo y toca el botón verde de <strong>Enviar</strong> para
+                que el restaurante lo reciba.
+              </p>
+              <a className="cart-send" href={enviado} target="_blank" rel="noopener">
+                <span aria-hidden="true">🟢</span> Abrir WhatsApp
+              </a>
+              <p className="cart-enviado-nota">¿No se abrió solo? Toca el botón de arriba.</p>
+              <button
+                type="button"
+                className="cart-enviado-cerrar"
+                onClick={() => {
+                  descartarEnvio();
+                  setGracias(true);
+                }}
+              >
+                Ya lo envié
+              </button>
+            </div>
+          ) : items.length === 0 ? (
             <div className="cart-empty">
               <p className="cart-empty-emoji">🛍️</p>
               <p className="cart-empty-title">Tu pedido está vacío</p>

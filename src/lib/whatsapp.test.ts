@@ -56,7 +56,18 @@ describe('estructura del mensaje', () => {
 /* ------------------------------------------------------------------ */
 describe('cada producto', () => {
   it('lleva cantidad, nombre y el total de la línea (no el unitario)', () => {
-    expect(msg([linea({ qty: 3 })])).toContain('• (3)x Sencilla — $39.000');
+    expect(msg([linea({ qty: 3 })])).toContain('• (3)x Hamburguesa Sencilla — $39.000');
+  });
+
+  it('distingue la mazorcada Tres Carnes de la hamburguesa Tres Carnes (mismo nombre y precio)', () => {
+    const mazorcada = msg([
+      linea({ id: 'm-tres-carnes', name: 'Tres Carnes', cat: 'mazorcadas', option: 'Porción', unitPrice: 36000 }),
+    ]);
+    const hamburguesa = msg([
+      linea({ id: 'h-tres-carnes', name: 'Tres Carnes', cat: 'hamburguesas', option: 'Artesanal', unitPrice: 36000 }),
+    ]);
+    expect(mazorcada).toContain('• (1)x Mazorcada Tres Carnes — $36.000');
+    expect(hamburguesa).toContain('• (1)x Hamburguesa Tres Carnes — $36.000');
   });
 
   it('muestra la variación', () => {
