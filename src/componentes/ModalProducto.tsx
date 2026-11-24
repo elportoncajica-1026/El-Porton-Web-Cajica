@@ -19,6 +19,7 @@
  * ============================================================= */
 
 import { useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
 import { COMBO_DRINKS, COMBO_PRICE, PIZZA_FLAVORS } from '@/data/menu';
 import type { ProductoMenu } from '@/types/menu';
 import {
@@ -217,6 +218,16 @@ export default function ModalProducto({
                     cambiar({ elecciones: sel.elecciones.map((v, k) => (k === ci ? i : v)) })
                   }
                 >
+                  {/* Miniatura del sabor (solo el primer selector puede tener fotos). */}
+                  {ci === 0 && item.choiceImgs?.[o] && (
+                    <Image
+                      className="opt-card-thumb"
+                      src={`/${item.choiceImgs[o].replace(/^\//, '')}`}
+                      alt=""
+                      width={40}
+                      height={54}
+                    />
+                  )}
                   <span className="opt-card-label">{o}</span>
                 </Tarjeta>
               ))}

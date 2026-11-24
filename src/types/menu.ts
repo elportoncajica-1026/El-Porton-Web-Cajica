@@ -71,6 +71,12 @@ export type ProductoMenu = {
   proteinsNombre?: { uno: string; varios: string };
 
   choices?: Choice[];
+  /**
+   * Foto por opción del PRIMER selector de `choices` (p. ej. un sabor).
+   * La tarjeta del modal muestra la miniatura y la línea del carrito usa
+   * la foto del sabor elegido. Las opciones sin foto usan `img`.
+   */
+  choiceImgs?: Record<string, string>;
 
   /**
    * OJO: esta clave NO existe en el menú del código — solo la añade

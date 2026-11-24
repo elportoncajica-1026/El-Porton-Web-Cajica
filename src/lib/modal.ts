@@ -34,6 +34,13 @@ export type Seleccion = {
 
 export const adicionesDe = (cat: CategoriaId) => ADICIONES.filter((a) => a.cats.includes(cat));
 
+/** Foto de la opción elegida en el primer selector, si el producto la tiene. */
+export function fotoDeEleccion(item: ProductoMenu, sel: { elecciones: number[] }): string | undefined {
+  const ch = item.choices?.[0];
+  if (!ch || !item.choiceImgs) return undefined;
+  return item.choiceImgs[ch.options[sel.elecciones[0] ?? 0] ?? ch.options[0]];
+}
+
 export function seleccionInicial(item: ProductoMenu): Seleccion {
   return {
     opcion: 0,
@@ -127,7 +134,8 @@ export function aItemCarrito(item: ProductoMenu, sel: Seleccion): ItemCarrito {
     name: item.name,
     cat: item.cat,
     emoji: item.emoji,
-    img: item.img ?? null,
+    // Si el sabor elegido tiene foto propia (p. ej. Jugo del Valle de mora), va esa.
+    img: fotoDeEleccion(item, sel) ?? item.img ?? null,
     option: opcion.label,
     combo: sel.combo,
     drink: sel.combo && sel.bebida !== null ? COMBO_DRINKS[sel.bebida] : null,
