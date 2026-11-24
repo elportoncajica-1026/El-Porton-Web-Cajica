@@ -336,7 +336,8 @@ export default function ModalProducto({
             </div>
           )}
 
-          {/* ---- notas ---- */}
+          {/* ---- notas ---- (las bebidas no las necesitan) */}
+          {item.cat !== 'bebidas' && (
           <div className="modal-section">
             <h3 className="modal-section-title">📝 Notas especiales</h3>
             <textarea
@@ -348,6 +349,7 @@ export default function ModalProducto({
               onChange={(e) => cambiar({ notas: e.target.value })}
             />
           </div>
+          )}
         </div>
 
         <footer className="modal-foot">

@@ -11,7 +11,7 @@ describe('gaseosa: sabores por tamaño', () => {
     expect(permitidas(gaseosa, idx('Lata'))).toEqual(['Coca-Cola']);
   });
   it('la Kola Román solo viene en 400ml', () => {
-    for (const t of ['350ml', '500ml', 'Lata', '1.5 Lt']) expect(permitidas(gaseosa, idx(t))).not.toContain('Kola Román');
+    for (const t of ['Lata', '1.5 Lt']) expect(permitidas(gaseosa, idx(t))).not.toContain('Kola Román');
     expect(permitidas(gaseosa, idx('400ml'))).toContain('Kola Román');
   });
   it('al pasar a lata con Sprite elegido, cambia a Coca-Cola', () => {

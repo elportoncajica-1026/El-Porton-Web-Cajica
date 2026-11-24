@@ -439,13 +439,12 @@ const MENU = [
     choices:[{ title:"🥤 Sabor", options:["Coca-Cola","Coca-Cola Zero","Quatro","Sprite","Ginger","Kola Román"] }],
     /* Lo que de verdad manejan, según el cliente (2026-11-24). */
     disponibilidad:{
-      "350ml":["Coca-Cola","Coca-Cola Zero","Quatro","Sprite"],
       "400ml":["Coca-Cola","Coca-Cola Zero","Quatro","Sprite","Ginger","Kola Román"],
-      "500ml":["Coca-Cola","Coca-Cola Zero"],
       "Lata":["Coca-Cola"],
       "1.5 Lt":["Coca-Cola","Coca-Cola Zero","Quatro","Sprite","Ginger"],
     },
-    options:[{label:"350ml",price:3700},{label:"400ml",price:4000},{label:"500ml",price:5000},{label:"Lata",price:4500},{label:"1.5 Lt",price:8000}] },
+    /* 350ml y 500ml retiradas (2026-11-24): no se manejan a domicilio. */
+    options:[{label:"400ml",price:4000},{label:"Lata",price:4500},{label:"1.5 Lt",price:8000}] },
   { id:"b-bretana", cat:"bebidas", combo:false, emoji:"💧", img:"assets/Platos/bebidas/bretana.jpg",
     name:"Bretaña", desc:"Botella.",
     options:[{label:"Porción",price:4500}] },

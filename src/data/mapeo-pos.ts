@@ -92,10 +92,8 @@ export const MAPEO_POS: Record<string, MapeoPos> = {
   '112300001': P('i-hamburguesa'),
   '112300002': P('i-perro'),
 
-  // ---- Bebidas ----
-  '122100031': P('b-gaseosa', '350ml'),
+  // ---- Bebidas ---- (350ml y 500ml retiradas de la web el 2026-11-24)
   '122100029': P('b-gaseosa', '400ml'),
-  '122100030': P('b-gaseosa', '500ml'),
   '122100034': P('b-gaseosa', 'Lata'),
   '122100024': P('b-gaseosa', '1.5 Lt'),
   '122100035': P('b-bretana'),
