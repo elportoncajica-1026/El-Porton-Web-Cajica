@@ -39,14 +39,29 @@ export default function TarjetaProducto({
              de aspecto falsa para reservar el hueco. Con `fill` la imagen
              se estira al contenedor —que ya es `position: relative` en
              estilos-v1.css— y manda el `object-fit: cover` del CSS. */
+          <>
+          {/* Bebidas: la botella es vertical y el marco horizontal; se muestra
+              completa (contain) y los lados se rellenan con la misma foto
+              difuminada, en vez de recortarla. Misma URL: no descarga de más. */}
+          {p.cat === 'bebidas' && (
+            <Image
+              className="cat-card-fondo"
+              src={p.img.startsWith('/') ? p.img : `/${p.img}`}
+              alt=""
+              aria-hidden="true"
+              fill
+              sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw"
+            />
+          )}
           <Image
-            className="cat-card-img"
+            className={`cat-card-img${p.cat === 'bebidas' ? ' cat-card-img--completa' : ''}`}
             data-menu-id={p.id}
             src={p.img.startsWith('/') ? p.img : `/${p.img}`}
             alt={p.name}
             fill
             sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw"
           />
+          </>
         ) : (
           <span className="cat-card-emoji">{p.emoji}</span>
         )}

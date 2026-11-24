@@ -445,13 +445,15 @@ const MENU = [
   { id:"b-agua", cat:"bebidas", combo:false, emoji:"💧", img:"assets/Platos/bebidas/agua-manantial.jpg",
     name:"Agua Manantial", desc:"Botella. Con gas o sin gas.",
     choices:[{ title:"💧 ¿Con o sin gas?", options:["Sin gas","Con gas"] }],
+    choiceImgs:{ "Sin gas":"assets/Platos/bebidas/agua-manantial.jpg", "Con gas":"assets/Platos/bebidas/agua-con-gas.jpg" },
     options:[{label:"Porción",price:4500}] },
-  /* Sabores dados por el cliente (2026-11-24). Sin foto todavía. */
-  { id:"b-fuze-te", cat:"bebidas", combo:false, emoji:"🧋",
+  /* Sabores dados por el cliente (2026-11-24). */
+  { id:"b-fuze-te", cat:"bebidas", combo:false, emoji:"🧋", img:"assets/Platos/bebidas/fuze-te-mango-manzanilla.jpg",
     name:"Fuze Té", desc:"Botella. Elige el sabor.",
     choices:[{ title:"🧋 Sabor", options:["Mango manzanilla","Durazno","Limón"] }],
+    choiceImgs:{ "Mango manzanilla":"assets/Platos/bebidas/fuze-te-mango-manzanilla.jpg", "Durazno":"assets/Platos/bebidas/fuze-te-durazno.jpg", "Limón":"assets/Platos/bebidas/fuze-te-limon.jpg" },
     options:[{label:"Porción",price:4000}] },
-  { id:"b-pony-malta", cat:"bebidas", combo:false, emoji:"🍯",
+  { id:"b-pony-malta", cat:"bebidas", combo:false, emoji:"🍯", img:"assets/Platos/bebidas/pony-malta.jpg",
     name:"Pony Malta", desc:"Botella.",
     options:[{label:"Porción",price:3800}] },
   { id:"b-jugo-valle", cat:"bebidas", combo:false, emoji:"🧃", img:"assets/Platos/bebidas/jugo-valle-salpicon.jpg",
@@ -491,7 +493,7 @@ const MENU = [
     /* El PRD las da juntas y al mismo precio, así que se elige aquí. */
     choices:[{ title:"🍺 Presentación", options:["Normal","Light"] }],
     options:[{label:"Porción",price:4500}] },
-  { id:"b-club-colombia", cat:"bebidas", combo:false, emoji:"🍺",
+  { id:"b-club-colombia", cat:"bebidas", combo:false, emoji:"🍺", img:"assets/Platos/bebidas/cerveza-club-colombia.jpg",
     name:"Cerveza Club Colombia", desc:"Cerveza.",
     options:[{label:"Porción",price:5000}] },
   { id:"b-corona", cat:"bebidas", combo:false, emoji:"🍺", img:"assets/Platos/bebidas/cerveza-corona.jpg",
@@ -500,7 +502,7 @@ const MENU = [
   { id:"b-coronita", cat:"bebidas", combo:false, emoji:"🍺", img:"assets/Platos/bebidas/coronita.jpg",
     name:"Coronita", desc:"Cerveza.",
     options:[{label:"Porción",price:6000}] },
-  { id:"b-cola-pola", cat:"bebidas", combo:false, emoji:"🍺",
+  { id:"b-cola-pola", cat:"bebidas", combo:false, emoji:"🍺", img:"assets/Platos/bebidas/cola-y-pola.jpg",
     name:"Cola y Pola", desc:"Cerveza con gaseosa.",
     options:[{label:"Porción",price:4000}] },
 ];

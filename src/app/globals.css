@@ -267,3 +267,7 @@ button.pago-opt {
 
 /* Miniatura del sabor en el modal (bebidas con foto por sabor). */
 .opt-card-thumb { flex: 0 0 auto; width: 40px; height: 54px; object-fit: cover; border-radius: 6px; }
+
+/* Bebidas: botella completa sobre su propia foto difuminada. */
+.cat-card-img.cat-card-img--completa { object-fit: contain !important; }
+.cat-card-fondo { object-fit: cover; filter: blur(14px) brightness(0.55); transform: scale(1.15); }
