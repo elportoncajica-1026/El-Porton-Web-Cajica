@@ -209,7 +209,12 @@ export default function ModalProducto({
 
           {/* ---- selectores sin coste ---- */}
           {(item.choices ?? []).map((ch, ci) => (
-            <Seccion key={ch.title} titulo={ch.title}>
+            <Seccion
+              key={ch.title}
+              titulo={ch.title}
+              /* Con foto por opción: "iconos grandes" (foto arriba, nombre debajo). */
+              clase={ci === 0 && (item.choiceImgs || item.cat === 'bebidas') ? 'choices-fotos' : ''}
+            >
               {ch.options.map((o, i) => (
                 <Tarjeta
                   key={o}
@@ -219,15 +224,21 @@ export default function ModalProducto({
                   }
                 >
                   {/* Miniatura del sabor (solo el primer selector puede tener fotos). */}
-                  {ci === 0 && item.choiceImgs?.[o] && (
-                    <Image
-                      className="opt-card-thumb"
-                      src={`/${item.choiceImgs[o].replace(/^\//, '')}`}
-                      alt=""
-                      width={40}
-                      height={54}
-                    />
-                  )}
+                  {ci === 0 && item.choiceImgs?.[o] ? (
+                    <span className="opt-card-foto">
+                      <Image
+                        src={`/${item.choiceImgs[o].replace(/^\//, '')}`}
+                        alt=""
+                        fill
+                        sizes="(max-width: 480px) 30vw, 160px"
+                      />
+                    </span>
+                  ) : ci === 0 && item.cat === 'bebidas' ? (
+                    /* Opción sin foto propia todavía: el ícono de la bebida. */
+                    <span className="opt-card-foto opt-card-foto--icono" aria-hidden="true">
+                      {item.emoji}
+                    </span>
+                  ) : null}
                   <span className="opt-card-label">{o}</span>
                 </Tarjeta>
               ))}

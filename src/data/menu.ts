@@ -437,6 +437,7 @@ const MENU = [
     name:"Gaseosa Coca-Cola", desc:"Elige tamaño y sabor.",
     /* El sabor no cambia el precio: va como `choices` (mismos que en el combo). */
     choices:[{ title:"🥤 Sabor", options:["Coca-Cola","Coca-Cola Zero","Quatro","Sprite","Ginger","Kola Román"] }],
+    choiceImgs:{ "Coca-Cola":"assets/Platos/bebidas/gaseosa-coca-cola.jpg" },
     options:[{label:"350ml",price:3700},{label:"400ml",price:4000},{label:"500ml",price:5000},{label:"Lata",price:4500},{label:"1.5 Lt",price:8000}] },
   { id:"b-bretana", cat:"bebidas", combo:false, emoji:"💧", img:"assets/Platos/bebidas/bretana.jpg",
     name:"Bretaña", desc:"Botella.",
@@ -492,6 +493,7 @@ const MENU = [
     name:"Cerveza Águila", desc:"Cerveza. Disponible normal o Light.",
     /* El PRD las da juntas y al mismo precio, así que se elige aquí. */
     choices:[{ title:"🍺 Presentación", options:["Normal","Light"] }],
+    choiceImgs:{ "Normal":"assets/Platos/bebidas/cerveza-aguila.jpg" },
     options:[{label:"Porción",price:4500}] },
   { id:"b-club-colombia", cat:"bebidas", combo:false, emoji:"🍺", img:"assets/Platos/bebidas/cerveza-club-colombia.jpg",
     name:"Cerveza Club Colombia", desc:"Cerveza.",

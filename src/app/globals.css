@@ -265,8 +265,15 @@ button.pago-opt {
   border-radius: 0.7rem;
 }
 
-/* Miniatura del sabor en el modal (bebidas con foto por sabor). */
-.opt-card-thumb { flex: 0 0 auto; width: 40px; height: 54px; object-fit: cover; border-radius: 6px; }
+/* Sabores con foto en el modal: vista de "iconos grandes".
+   Foto vertical completa arriba y el nombre centrado debajo. */
+.choices-fotos .opt-grid { grid-template-columns: repeat(3, 1fr); gap: 0.65rem; }
+@media (max-width: 380px) { .choices-fotos .opt-grid { grid-template-columns: repeat(2, 1fr); } }
+.choices-fotos .opt-card { flex-direction: column; align-items: stretch; gap: 0.5rem; padding: 0.5rem 0.5rem 0.65rem; }
+.choices-fotos .opt-card-label { flex: none; text-align: center; font-size: 0.8rem; line-height: 1.25; }
+.opt-card-foto { position: relative; display: block; width: 100%; aspect-ratio: 3 / 4; border-radius: 0.5rem; overflow: hidden; background: #141414; }
+.opt-card-foto img { object-fit: cover; }
+.opt-card-foto--icono { display: grid; place-items: center; font-size: 2.2rem; background: radial-gradient(circle at 50% 40%, rgba(229,62,62,0.14), #141414 70%); }
 
 /* Bebidas: botella completa sobre su propia foto difuminada. */
 .cat-card-img.cat-card-img--completa { object-fit: contain !important; }
