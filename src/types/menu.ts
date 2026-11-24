@@ -77,6 +77,12 @@ export type ProductoMenu = {
    * la foto del sabor elegido. Las opciones sin foto usan `img`.
    */
   choiceImgs?: Record<string, string>;
+  /**
+   * Qué opciones del PRIMER selector existen en cada tamaño (clave = label de
+   * `options`). P. ej. la Kola Román solo viene en 400ml. Sin esta clave,
+   * todas las combinaciones valen.
+   */
+  disponibilidad?: Record<string, string[]>;
 
   /**
    * OJO: esta clave NO existe en el menú del código — solo la añade

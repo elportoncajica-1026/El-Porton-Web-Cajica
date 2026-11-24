@@ -24,6 +24,8 @@ import { COMBO_DRINKS, COMBO_PRICE, PIZZA_FLAVORS } from '@/data/menu';
 import type { ProductoMenu } from '@/types/menu';
 import {
   adicionesDe,
+  corregirElecciones,
+  permitidas,
   aItemCarrito,
   ofreceCombo,
   precioDe,
@@ -141,7 +143,11 @@ export default function ModalProducto({
           {item.options.length > 1 && (
             <Seccion titulo="Elige una opción">
               {item.options.map((o, i) => (
-                <Tarjeta key={o.label} activa={sel.opcion === i} onClick={() => cambiar({ opcion: i })}>
+                <Tarjeta
+                  key={o.label}
+                  activa={sel.opcion === i}
+                  onClick={() => cambiar({ opcion: i, elecciones: corregirElecciones(item, i, sel.elecciones) })}
+                >
                   <span className="opt-card-label">{o.label}</span>
                   <span className="opt-card-price">{fmt(o.price)}</span>
                 </Tarjeta>
@@ -213,12 +219,13 @@ export default function ModalProducto({
               key={ch.title}
               titulo={ch.title}
               /* Con foto por opción: "iconos grandes" (foto arriba, nombre debajo). */
-              clase={ci === 0 && (item.choiceImgs || item.cat === 'bebidas') ? 'choices-fotos' : ''}
+              clase={ci === 0 && item.choiceImgs ? 'choices-fotos' : ''}
             >
               {ch.options.map((o, i) => (
                 <Tarjeta
                   key={o}
                   activa={sel.elecciones[ci] === i}
+                  deshabilitada={ci === 0 && !!permitidas(item, sel.opcion) && !permitidas(item, sel.opcion)!.includes(o)}
                   onClick={() =>
                     cambiar({ elecciones: sel.elecciones.map((v, k) => (k === ci ? i : v)) })
                   }
@@ -233,13 +240,18 @@ export default function ModalProducto({
                         sizes="(max-width: 480px) 30vw, 160px"
                       />
                     </span>
-                  ) : ci === 0 && item.cat === 'bebidas' ? (
+                  ) : ci === 0 && item.choiceImgs ? (
                     /* Opción sin foto propia todavía: el ícono de la bebida. */
                     <span className="opt-card-foto opt-card-foto--icono" aria-hidden="true">
                       {item.emoji}
                     </span>
                   ) : null}
-                  <span className="opt-card-label">{o}</span>
+                  <span className="opt-card-label">
+                    {o}
+                    {ci === 0 && permitidas(item, sel.opcion) && !permitidas(item, sel.opcion)!.includes(o) && (
+                      <small className="opt-card-no">No hay en {item.options[sel.opcion].label}</small>
+                    )}
+                  </span>
                 </Tarjeta>
               ))}
             </Seccion>
@@ -453,13 +465,21 @@ function Tarjeta({
   activa,
   onClick,
   children,
+  deshabilitada = false,
 }: {
   activa: boolean;
   onClick: () => void;
   children: React.ReactNode;
+  deshabilitada?: boolean;
 }) {
   return (
-    <button type="button" className={`opt-card${activa ? ' is-selected' : ''}`} aria-pressed={activa} onClick={onClick}>
+    <button
+      type="button"
+      className={`opt-card${activa ? ' is-selected' : ''}${deshabilitada ? ' is-disabled' : ''}`}
+      aria-pressed={activa}
+      disabled={deshabilitada}
+      onClick={onClick}
+    >
       {children}
     </button>
   );

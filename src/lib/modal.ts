@@ -41,6 +41,22 @@ export function fotoDeEleccion(item: ProductoMenu, sel: { elecciones: number[] }
   return item.choiceImgs[ch.options[sel.elecciones[0] ?? 0] ?? ch.options[0]];
 }
 
+/** Opciones del primer selector que existen en el tamaño elegido (null = todas). */
+export function permitidas(item: ProductoMenu, opcion: number): string[] | null {
+  const lista = item.disponibilidad?.[item.options[opcion]?.label ?? ''];
+  return lista ?? null;
+}
+
+/** Si el sabor elegido no existe en el tamaño, pasa al primero que sí. */
+export function corregirElecciones(item: ProductoMenu, opcion: number, elecciones: number[]): number[] {
+  const ok = permitidas(item, opcion);
+  const ch = item.choices?.[0];
+  if (!ok || !ch) return elecciones;
+  if (ok.includes(ch.options[elecciones[0] ?? 0])) return elecciones;
+  const i = ch.options.findIndex((o) => ok.includes(o));
+  return elecciones.map((v, n) => (n === 0 ? Math.max(i, 0) : v));
+}
+
 export function seleccionInicial(item: ProductoMenu): Seleccion {
   return {
     opcion: 0,

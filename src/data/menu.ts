@@ -437,7 +437,14 @@ const MENU = [
     name:"Gaseosa Coca-Cola", desc:"Elige tamaño y sabor.",
     /* El sabor no cambia el precio: va como `choices` (mismos que en el combo). */
     choices:[{ title:"🥤 Sabor", options:["Coca-Cola","Coca-Cola Zero","Quatro","Sprite","Ginger","Kola Román"] }],
-    choiceImgs:{ "Coca-Cola":"assets/Platos/bebidas/gaseosa-coca-cola.jpg" },
+    /* Lo que de verdad manejan, según el cliente (2026-11-24). */
+    disponibilidad:{
+      "350ml":["Coca-Cola","Coca-Cola Zero","Quatro","Sprite"],
+      "400ml":["Coca-Cola","Coca-Cola Zero","Quatro","Sprite","Ginger","Kola Román"],
+      "500ml":["Coca-Cola","Coca-Cola Zero"],
+      "Lata":["Coca-Cola"],
+      "1.5 Lt":["Coca-Cola","Coca-Cola Zero","Quatro","Sprite","Ginger"],
+    },
     options:[{label:"350ml",price:3700},{label:"400ml",price:4000},{label:"500ml",price:5000},{label:"Lata",price:4500},{label:"1.5 Lt",price:8000}] },
   { id:"b-bretana", cat:"bebidas", combo:false, emoji:"💧", img:"assets/Platos/bebidas/bretana.jpg",
     name:"Bretaña", desc:"Botella.",
@@ -462,6 +469,12 @@ const MENU = [
     choices:[{ title:"🧃 Sabor", options:["Salpicón","Mora","Mango"] }],
     choiceImgs:{ "Salpicón":"assets/Platos/bebidas/jugo-valle-salpicon.jpg", "Mora":"assets/Platos/bebidas/jugo-valle-mora.jpg", "Mango":"assets/Platos/bebidas/jugo-valle-mango.jpg" },
     options:[{label:"Porción",price:3500}] },
+  /* Pedido del cliente (2026-11-24). PRECIO PROVISIONAL: $4.000 hasta que lo confirme. */
+  { id:"b-hit-caja", cat:"bebidas", combo:false, emoji:"🧃", img:"assets/Platos/bebidas/jugo-hit-mango.jpg",
+    name:"Jugo Hit (caja)", desc:"Caja de 200 ml. Elige el sabor.",
+    choices:[{ title:"🧃 Sabor", options:["Mango","Mora","Frutas tropicales"] }],
+    choiceImgs:{ "Mango":"assets/Platos/bebidas/jugo-hit-mango.jpg", "Mora":"assets/Platos/bebidas/jugo-hit-mora.jpg", "Frutas tropicales":"assets/Platos/bebidas/jugo-hit-frutas-tropicales.jpg" },
+    options:[{label:"Porción",price:4000}] },
   { id:"b-te-hatsu", cat:"bebidas", combo:false, emoji:"🍵", img:"assets/Platos/bebidas/te-hatsu-lychee.jpg",
     name:"Té Hatsu", desc:"Botella. Elige el sabor.",
     choices:[{ title:"🍵 Sabor", options:["Lychee · Té blanco","Granada & Mora azul · Té blanco","Frutos rojos · Té rojo Pu-erh","Yuzu & Manzanilla · Té verde","Flor de cerezo · Té blanco","Carambolo & Flor de loto · Té blanco","Mangostino · Té blanco"] }],
@@ -493,7 +506,7 @@ const MENU = [
     name:"Cerveza Águila", desc:"Cerveza. Disponible normal o Light.",
     /* El PRD las da juntas y al mismo precio, así que se elige aquí. */
     choices:[{ title:"🍺 Presentación", options:["Normal","Light"] }],
-    choiceImgs:{ "Normal":"assets/Platos/bebidas/cerveza-aguila.jpg" },
+    choiceImgs:{ "Normal":"assets/Platos/bebidas/cerveza-aguila.jpg", "Light":"assets/Platos/bebidas/cerveza-aguila-light.jpg" },
     options:[{label:"Porción",price:4500}] },
   { id:"b-club-colombia", cat:"bebidas", combo:false, emoji:"🍺", img:"assets/Platos/bebidas/cerveza-club-colombia.jpg",
     name:"Cerveza Club Colombia", desc:"Cerveza.",

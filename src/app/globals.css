@@ -278,3 +278,8 @@ button.pago-opt {
 /* Bebidas: botella completa sobre su propia foto difuminada. */
 .cat-card-img.cat-card-img--completa { object-fit: contain !important; }
 .cat-card-fondo { object-fit: cover; filter: blur(14px) brightness(0.55); transform: scale(1.15); }
+
+/* Opción que no existe en el tamaño elegido (p. ej. Kola Román en lata). */
+.opt-card.is-disabled { opacity: 0.38; cursor: not-allowed; }
+.opt-card.is-disabled:hover { border-color: rgba(255,255,255,0.08); }
+.opt-card-no { display: block; margin-top: 0.15rem; font-size: 0.7rem; color: #a1a1aa; }
