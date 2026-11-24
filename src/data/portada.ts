@@ -15,7 +15,7 @@
 import type { CategoriaId } from '@/types/menu';
 
 /** "Favoritos de la casa": platos elegidos por el restaurante (con foto real). */
-export const FAVORITOS: string[] = ['h-cheese-bacon', 'p-todo-terreno', 'h-montanera', 's-clasica'];
+export const FAVORITOS: string[] = ['h-cheese-bacon', 'p-todo-terreno', 'h-montanera', 's-mixta'];
 
 /** Datos cortos bajo los botones del hero. */
 export const DATOS_HERO = [
