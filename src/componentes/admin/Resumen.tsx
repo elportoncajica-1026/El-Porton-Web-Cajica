@@ -23,9 +23,10 @@ import { MENU } from '@/data/menu';
 import { CONTACTO } from '@/data/portada';
 import { estadoEn } from '@/lib/horario';
 import { dinero, ETIQUETA_ESTADO, estadoDe, type Pedido } from '@/lib/pedidos-admin';
-import { coordX, coordY, escalaY, etiquetaEje, formatoCorto, marcasY, rutaArea, rutaLinea, type FilaTop, type Marco, type PuntoSerie } from '@/lib/ventas';
+import { coordX, coordY, escalaY, formatoCorto, llevaEtiqueta, pasoEtiquetasX, marcasY, rutaArea, rutaLinea, type FilaTop, type Marco, type PuntoSerie } from '@/lib/ventas';
 import { diaAnterior, fechaBogota, haceCuanto, rangoDia, resumenDia, variacion, type ResumenDia } from '@/lib/panel';
 import { nombreConCategoria } from '@/lib/nombre-plato';
+import { agrupar, etiquetaCorta, etiquetaLarga, porAnio, rangoDe, siguienteNivel, tituloZoom, type GranPunto, type Zoom } from '@/lib/grafica-zoom';
 import ExportarCSV from './ExportarCSV';
 import SelectorDia from './SelectorDia';
 import { Contador, Esqueleto } from './Animaciones';
@@ -36,7 +37,6 @@ export type Seccion = 'inicio' | 'pedidos' | 'menu' | 'precios' | 'tiempos' | 'v
 type Actividad = { cuando: string; tipo: 'pedido' | 'producto'; titulo: string; detalle: string; monto?: number };
 
 const MARCO: Marco = { ancho: 640, alto: 230, padL: 58, padR: 16, padT: 14, padB: 28 };
-const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 
 const fotoDe = (nombre: string) => {
   const p = MENU.find((m) => m.name === nombre);
@@ -51,21 +51,6 @@ const TITULO_GRAFICA: Record<GranGrafica, string> = {
   anio: 'Ventas por año',
 };
 
-/** Suma los meses en años. Solo quedan los años con algún dato (y el actual). */
-function porAnio(meses: PuntoSerie[]): PuntoSerie[] {
-  const m = new Map<string, PuntoSerie>();
-  for (const p of meses) {
-    const y = String(p.inicio).slice(0, 4);
-    const a = m.get(y) ?? { inicio: `${y}-01-01`, ingreso: 0, pedidos: 0 };
-    a.ingreso += Number(p.ingreso);
-    a.pedidos += Number(p.pedidos);
-    m.set(y, a);
-  }
-  const actual = String(new Date().getFullYear());
-  return [...m.values()]
-    .filter((a) => a.ingreso > 0 || a.pedidos > 0 || a.inicio.startsWith(actual))
-    .sort((a, b) => a.inicio.localeCompare(b.inicio));
-}
 
 export default function Resumen({
   recargarToken,
@@ -91,6 +76,8 @@ export default function Resumen({
   const [ingresoTotal, setIngresoTotal] = useState<number | undefined>(undefined);
   /* Gráfica de ventas: últimos 7 días, últimos 12 meses o por año. */
   const [granGrafica, setGranGrafica] = useState<GranGrafica>('dia');
+  /* Pila de zoom: tocar un punto baja un nivel (año → mes → día → hora). */
+  const [zoom, setZoom] = useState<Zoom[]>([]);
 
   useEffect(() => {
     /* Todo el estado se fija DESPUÉS de los await y solo si el efecto
@@ -162,6 +149,20 @@ export default function Resumen({
   useEffect(() => {
     let vigente = true;
     void (async () => {
+      const z = zoom[zoom.length - 1];
+      if (z) {
+        /* Dentro de un zoom: los pedidos de ese periodo, agrupados aquí. */
+        const { desde, hasta } = rangoDe(z);
+        const r = await sb.from('orders').select('created_at, subtotal').gte('created_at', desde).lt('created_at', hasta).neq('status', 'cancelado');
+        if (!vigente) return;
+        if (r.error) {
+          setAviso('No se pudo leer el detalle: ' + r.error.message);
+          setSerie([]);
+          return;
+        }
+        setSerie(agrupar(z, (r.data ?? []) as { created_at: string; subtotal: number }[]));
+        return;
+      }
       const r =
         granGrafica === 'dia'
           ? await sb.rpc('ventas_serie', { p_gran: 'dia', p_periodos: 7 })
@@ -178,7 +179,12 @@ export default function Resumen({
     return () => {
       vigente = false;
     };
-  }, [sb, recargarToken, granGrafica]);
+  }, [sb, recargarToken, granGrafica, zoom]);
+
+  const zoomActual = zoom[zoom.length - 1];
+  const granPuntos: GranPunto = zoomActual ? zoomActual.gran : granGrafica;
+  /* La gráfica se vuelve a montar (y se anima) solo cuando cambia la vista, no con cada refresco. */
+  const claveVista = zoomActual ? `${zoomActual.gran}-${zoomActual.clave}` : granGrafica;
 
   const tienda = estadoEn();
   const esHoy = dia === hoy;
@@ -205,10 +211,25 @@ export default function Resumen({
         {/* ---------- ventas 7 días ---------- */}
         <section className="pn-tarjeta">
           <header className="pn-tarjeta-cab">
-            <h3>{TITULO_GRAFICA[granGrafica]}</h3>
+            <div className="pn-grafica-titulo">
+              {zoomActual && (
+                <button type="button" className="pn-grafica-volver" onClick={() => setZoom((zs) => zs.slice(0, -1))} aria-label="Volver al nivel anterior">
+                  ←
+                </button>
+              )}
+              <h3 key={claveVista}>{zoomActual ? tituloZoom(zoomActual) : TITULO_GRAFICA[granGrafica]}</h3>
+            </div>
             <div className="vt-seg" role="group" aria-label="Periodo de la gráfica">
               {(['dia', 'mes', 'anio'] as const).map((g) => (
-                <button key={g} type="button" className={granGrafica === g ? 'active' : undefined} onClick={() => setGranGrafica(g)}>
+                <button
+                  key={g}
+                  type="button"
+                  className={!zoomActual && granGrafica === g ? 'active' : undefined}
+                  onClick={() => {
+                    setGranGrafica(g);
+                    setZoom([]);
+                  }}
+                >
                   {ETIQUETA_GRAFICA[g]}
                 </button>
               ))}
@@ -217,7 +238,19 @@ export default function Resumen({
               Ver ventas
             </button>
           </header>
-          {serie ? <Grafica serie={serie} gran={granGrafica} /> : <Esqueleto lineas={5} alto="1.6rem" />}
+          {serie ? (
+            <Grafica
+              key={claveVista}
+              serie={serie}
+              gran={granPuntos}
+              onElegir={(p) => {
+                const z = siguienteNivel(granPuntos, String(p.inicio));
+                if (z) setZoom((zs) => [...zs, z]);
+              }}
+            />
+          ) : (
+            <Esqueleto lineas={5} alto="1.6rem" />
+          )}
         </section>
 
         {/* ---------- estado de la tienda ---------- */}
@@ -437,51 +470,150 @@ function Kpi({
   );
 }
 
-function Grafica({ serie, gran }: { serie: PuntoSerie[]; gran: GranGrafica }) {
+function Grafica({
+  serie,
+  gran,
+  onElegir,
+}: {
+  serie: PuntoSerie[];
+  gran: GranPunto;
+  onElegir: (p: PuntoSerie) => void;
+}) {
+  const [activo, setActivo] = useState<number | null>(null);
   const valores = serie.map((p) => Number(p.ingreso));
   const escala = escalaY(Math.max(0, ...valores));
   if (!valores.length) return <p className="empty-state">Sin datos.</p>;
+
+  const n = serie.length;
+  const barras = gran === 'anio' || n === 1;
+  const sePuedeBajar = gran !== 'hora';
+  const muchos = n > 10;
+  const paso = pasoEtiquetasX(n);
+  const base = coordY(0, escala.tope, MARCO);
+  const anchoUtil = MARCO.ancho - MARCO.padL - MARCO.padR;
+  const anchoBarra = Math.min(64, (anchoUtil / n) * 0.55);
+
+  /* Detalle flotante del punto activo (mouse o dedo). */
+  const tip = activo === null ? null : (() => {
+    const p = serie[activo];
+    const x = coordX(activo, n, MARCO);
+    const y = coordY(Number(p.ingreso), escala.tope, MARCO);
+    const lineas = [etiquetaLarga(gran, String(p.inicio)), `${dinero(Number(p.ingreso))} · ${p.pedidos} pedido${Number(p.pedidos) === 1 ? '' : 's'}`];
+    if (sePuedeBajar) lineas.push('Toca para ver el detalle');
+    const w = Math.max(...lineas.map((l) => l.length)) * 6.4 + 22;
+    const h = lineas.length * 16 + 12;
+    const tx = Math.min(Math.max(x - w / 2, MARCO.padL), MARCO.ancho - MARCO.padR - w);
+    const ty = y - h - 14 < 2 ? y + 14 : y - h - 14;
+    return { x, y, lineas, w, h, tx, ty };
+  })();
+
   return (
-    <svg className="pn-grafica" viewBox={`0 0 ${MARCO.ancho} ${MARCO.alto}`} role="img" aria-label={TITULO_GRAFICA[gran]}>
-      <defs>
-        <linearGradient id="pnGrad" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#E53E3E" stopOpacity="0.45" />
-          <stop offset="100%" stopColor="#E53E3E" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      {marcasY(escala).map((m) => (
-        <g key={m}>
-          <line x1={MARCO.padL} x2={MARCO.ancho - MARCO.padR} y1={coordY(m, escala.tope, MARCO)} y2={coordY(m, escala.tope, MARCO)} className="pn-grafica-guia" />
-          <text x={MARCO.padL - 8} y={coordY(m, escala.tope, MARCO) + 4} textAnchor="end" className="pn-grafica-eje">
-            {formatoCorto(m)}
-          </text>
-        </g>
-      ))}
-      <path d={rutaArea(valores, escala.tope, MARCO)} fill="url(#pnGrad)" className="pn-grafica-area" />
-      {/* pathLength="1": el trazo se anima de 0 a 1 sin medir la línea. */}
-      <path d={rutaLinea(valores, escala.tope, MARCO)} className="pn-grafica-linea" pathLength={1} />
-      {serie.map((p, i) => {
-        const x = coordX(i, serie.length, MARCO);
-        const [y, m, d] = String(p.inicio).split('-').map(Number);
-        const dia = DIAS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
-        const etiqueta = gran === 'dia' ? `${dia} ${d}` : gran === 'mes' ? etiquetaEje(String(p.inicio), 'mes') : String(y);
-        return (
-          <g key={p.inicio}>
-            <circle
-              cx={x}
-              cy={coordY(Number(p.ingreso), escala.tope, MARCO)}
-              r="4"
-              className="pn-grafica-punto"
-              style={{ '--i': i } as React.CSSProperties}
-            >
-              <title>{`${etiqueta}: ${dinero(Number(p.ingreso))} · ${p.pedidos} pedidos`}</title>
-            </circle>
-            <text x={x} y={MARCO.alto - 6} textAnchor="middle" className="pn-grafica-eje">
-              {etiqueta}
+    <div className="pn-grafica-caja">
+      <svg
+        className={`pn-grafica${sePuedeBajar ? ' is-navegable' : ''}`}
+        viewBox={`0 0 ${MARCO.ancho} ${MARCO.alto}`}
+        role="img"
+        aria-label="Gráfica de ventas"
+        onPointerLeave={() => setActivo(null)}
+      >
+        <defs>
+          <linearGradient id="pnGrad" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#E53E3E" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="#E53E3E" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="pnBarra" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#E53E3E" />
+            <stop offset="100%" stopColor="#E53E3E" stopOpacity="0.35" />
+          </linearGradient>
+        </defs>
+        {marcasY(escala).map((m) => (
+          <g key={m}>
+            <line x1={MARCO.padL} x2={MARCO.ancho - MARCO.padR} y1={coordY(m, escala.tope, MARCO)} y2={coordY(m, escala.tope, MARCO)} className="pn-grafica-guia" />
+            <text x={MARCO.padL - 8} y={coordY(m, escala.tope, MARCO) + 4} textAnchor="end" className="pn-grafica-eje">
+              {formatoCorto(m)}
             </text>
           </g>
-        );
-      })}
-    </svg>
+        ))}
+
+        {tip && <line x1={tip.x} x2={tip.x} y1={MARCO.padT} y2={base} className="pn-grafica-cursor" />}
+
+        {!barras && (
+          <>
+            <path d={rutaArea(valores, escala.tope, MARCO)} fill="url(#pnGrad)" className="pn-grafica-area" />
+            {/* pathLength="1": el trazo se anima de 0 a 1 sin medir la línea. */}
+            <path d={rutaLinea(valores, escala.tope, MARCO)} className="pn-grafica-linea" pathLength={1} />
+          </>
+        )}
+
+        {serie.map((p, i) => {
+          const x = coordX(i, n, MARCO);
+          const y = coordY(Number(p.ingreso), escala.tope, MARCO);
+          const elegir = () => sePuedeBajar && onElegir(p);
+          return (
+            <g key={p.inicio}>
+              {barras ? (
+                <>
+                  <rect
+                    x={x - anchoBarra / 2}
+                    y={Math.min(y, base - 2)}
+                    width={anchoBarra}
+                    height={Math.max(base - y, 2)}
+                    rx="6"
+                    fill="url(#pnBarra)"
+                    className={`pn-grafica-barra${activo === i ? ' is-activo' : ''}`}
+                    style={{ '--i': i } as React.CSSProperties}
+                  />
+                  <text x={x} y={Math.min(y, base - 2) - 8} textAnchor="middle" className="pn-grafica-valor" style={{ '--i': i } as React.CSSProperties}>
+                    {formatoCorto(Number(p.ingreso))}
+                  </text>
+                </>
+              ) : (
+                <>
+                  {activo === i && <circle cx={x} cy={y} r="11" className="pn-grafica-halo" />}
+                  <circle cx={x} cy={y} r="4" className="pn-grafica-punto" style={{ '--i': i } as React.CSSProperties} />
+                </>
+              )}
+              {llevaEtiqueta(i, n, paso) && (
+                <text x={x} y={MARCO.alto - 6} textAnchor="middle" className={`pn-grafica-eje${activo === i ? ' is-activo' : ''}`}>
+                  {etiquetaCorta(gran, String(p.inicio), muchos)}
+                </text>
+              )}
+              {/* Zona táctil generosa: toda la franja vertical del punto. */}
+              <rect
+                x={x - Math.max(anchoUtil / n, 24) / 2}
+                y={MARCO.padT}
+                width={Math.max(anchoUtil / n, 24)}
+                height={base - MARCO.padT + 6}
+                className="pn-grafica-hit"
+                role={sePuedeBajar ? 'button' : undefined}
+                tabIndex={sePuedeBajar ? 0 : undefined}
+                aria-label={`${etiquetaLarga(gran, String(p.inicio))}: ${dinero(Number(p.ingreso))}`}
+                onPointerEnter={() => setActivo(i)}
+                onFocus={() => setActivo(i)}
+                onBlur={() => setActivo(null)}
+                onClick={elegir}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    elegir();
+                  }
+                }}
+              />
+            </g>
+          );
+        })}
+
+        {tip && (
+          <g className="pn-grafica-tip" pointerEvents="none">
+            <rect x={tip.tx} y={tip.ty} width={tip.w} height={tip.h} rx="10" />
+            {tip.lineas.map((l, k) => (
+              <text key={k} x={tip.tx + 11} y={tip.ty + 20 + k * 16} className={k === 0 ? 'is-titulo' : k === 2 ? 'is-pista' : undefined}>
+                {l}
+              </text>
+            ))}
+          </g>
+        )}
+      </svg>
+    </div>
   );
 }

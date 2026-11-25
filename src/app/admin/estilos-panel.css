@@ -864,3 +864,38 @@
 .tp-modo button { border: 0; background: none; color: #a1a1aa; font: inherit; font-size: 0.8rem; font-weight: 600; padding: 0.35rem 0.7rem; border-radius: 6px; cursor: pointer; }
 .tp-modo button.is-on { background: #e53e3e; color: #fff; }
 .tp-campos { flex-wrap: wrap; }
+
+/* 2b. Gráfica interactiva: zoom, detalle y barras (mismas curvas y tiempos del panel). */
+.pn-grafica-caja { position: relative; animation: pn-zoom 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.pn-grafica-hit { fill: transparent; }
+.pn-grafica.is-navegable .pn-grafica-hit { cursor: pointer; }
+.pn-grafica-hit:focus { outline: none; }
+.pn-grafica-cursor { stroke: rgba(255, 255, 255, 0.18); stroke-dasharray: 3 4; animation: pn-aparecer 0.2s ease both; }
+.pn-grafica-halo { fill: rgba(229, 62, 62, 0.18); stroke: rgba(229, 62, 62, 0.5); stroke-width: 1; transform-box: fill-box; transform-origin: center; animation: pn-saltar 0.45s ease both; }
+.pn-grafica-barra {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: pn-crecer 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(0.35s + var(--i, 0) * 0.17s);
+  transition: filter 0.2s ease;
+}
+.pn-grafica-barra.is-activo { filter: brightness(1.25) drop-shadow(0 0 10px rgba(229, 62, 62, 0.45)); }
+.pn-grafica-valor { fill: #e4e4e7; font-size: 12px; font-weight: 600; animation: pn-aparecer 0.5s ease both; animation-delay: calc(0.9s + var(--i, 0) * 0.17s); }
+.pn-grafica-eje.is-activo { fill: #fff; }
+.pn-grafica-tip { animation: pn-aparecer 0.18s ease both; }
+.pn-grafica-tip rect { fill: #1c1c21; stroke: rgba(255, 255, 255, 0.1); }
+.pn-grafica-tip text { fill: #d4d4d8; font-size: 11.5px; }
+.pn-grafica-tip text.is-titulo { fill: #fff; font-weight: 700; }
+.pn-grafica-tip text.is-pista { fill: var(--rojo); font-weight: 600; }
+.pn-grafica-titulo { display: flex; align-items: center; gap: 0.5rem; }
+.pn-grafica-titulo h3 { animation: pn-deslizar 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.pn-grafica-volver {
+  width: 30px; height: 30px; border-radius: 999px; flex: 0 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.12); background: transparent; color: #e4e4e7;
+  cursor: pointer; font-size: 0.95rem; line-height: 1;
+  animation: pn-saltar 0.45s ease both;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.pn-grafica-volver:hover { border-color: var(--rojo); color: #fff; }
+@keyframes pn-crecer { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes pn-zoom { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
