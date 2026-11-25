@@ -23,7 +23,7 @@ import { MENU } from '@/data/menu';
 import { CONTACTO } from '@/data/portada';
 import { estadoEn } from '@/lib/horario';
 import { dinero, ETIQUETA_ESTADO, estadoDe, type Pedido } from '@/lib/pedidos-admin';
-import { coordX, coordY, escalaY, formatoCorto, marcasY, rutaArea, rutaLinea, type FilaTop, type Marco, type PuntoSerie } from '@/lib/ventas';
+import { coordX, coordY, escalaY, etiquetaEje, formatoCorto, marcasY, rutaArea, rutaLinea, type FilaTop, type Marco, type PuntoSerie } from '@/lib/ventas';
 import { diaAnterior, fechaBogota, haceCuanto, rangoDia, resumenDia, variacion, type ResumenDia } from '@/lib/panel';
 import { nombreConCategoria } from '@/lib/nombre-plato';
 import ExportarCSV from './ExportarCSV';
@@ -42,6 +42,30 @@ const fotoDe = (nombre: string) => {
   const p = MENU.find((m) => m.name === nombre);
   return p?.img ? (p.img.startsWith('/') ? p.img : `/${p.img}`) : null;
 };
+
+type GranGrafica = 'dia' | 'mes' | 'anio';
+const ETIQUETA_GRAFICA: Record<GranGrafica, string> = { dia: '7 días', mes: 'Por mes', anio: 'Por año' };
+const TITULO_GRAFICA: Record<GranGrafica, string> = {
+  dia: 'Ventas últimos 7 días',
+  mes: 'Ventas por mes (últimos 12)',
+  anio: 'Ventas por año',
+};
+
+/** Suma los meses en años. Solo quedan los años con algún dato (y el actual). */
+function porAnio(meses: PuntoSerie[]): PuntoSerie[] {
+  const m = new Map<string, PuntoSerie>();
+  for (const p of meses) {
+    const y = String(p.inicio).slice(0, 4);
+    const a = m.get(y) ?? { inicio: `${y}-01-01`, ingreso: 0, pedidos: 0 };
+    a.ingreso += Number(p.ingreso);
+    a.pedidos += Number(p.pedidos);
+    m.set(y, a);
+  }
+  const actual = String(new Date().getFullYear());
+  return [...m.values()]
+    .filter((a) => a.ingreso > 0 || a.pedidos > 0 || a.inicio.startsWith(actual))
+    .sort((a, b) => a.inicio.localeCompare(b.inicio));
+}
 
 export default function Resumen({
   recargarToken,
@@ -63,6 +87,10 @@ export default function Resumen({
   const [top, setTop] = useState<FilaTop[] | null>(null);
   const [actividad, setActividad] = useState<Actividad[] | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
+  /* Ingreso de toda la historia, sin pedidos cancelados (ventas_totales). */
+  const [ingresoTotal, setIngresoTotal] = useState<number | undefined>(undefined);
+  /* Gráfica de ventas: últimos 7 días, últimos 12 meses o por año. */
+  const [granGrafica, setGranGrafica] = useState<GranGrafica>('dia');
 
   useEffect(() => {
     /* Todo el estado se fija DESPUÉS de los await y solo si el efecto
@@ -74,8 +102,7 @@ export default function Resumen({
       const desde = rangoDia(diaAnterior(dia)).desde.toISOString();
       const hasta = rangoDia(dia).hasta.toISOString();
 
-      const [rSerie, rDia, rRecientes, rTop, rMenu] = await Promise.all([
-        sb.rpc('ventas_serie', { p_gran: 'dia', p_periodos: 7 }),
+      const [rDia, rRecientes, rTop, rMenu, rTotales] = await Promise.all([
         sb
           .from('orders')
           .select('*')
@@ -85,11 +112,12 @@ export default function Resumen({
         sb.from('orders').select('*').order('created_at', { ascending: false }).limit(6),
         sb.rpc('ventas_top', { p_gran: 'dia', p_periodos: 30, p_limite: 5 }),
         sb.from('menu_items').select('id, data, updated_at').order('updated_at', { ascending: false }).limit(4),
+        sb.rpc('ventas_totales'),
       ]);
       if (!vigente) return;
 
-      setAviso(rSerie.error ? 'No se pudieron leer las ventas: ' + rSerie.error.message : null);
-      setSerie(rSerie.error ? [] : ((rSerie.data ?? []) as PuntoSerie[]));
+      setAviso(null);
+      setIngresoTotal(rTotales.error ? 0 : Number((rTotales.data as { ingreso: number }[] | null)?.[0]?.ingreso ?? 0));
 
       if (rDia.error) {
         setAviso('No se pudieron leer los pedidos del día: ' + rDia.error.message);
@@ -129,6 +157,29 @@ export default function Resumen({
     };
   }, [sb, recargarToken, dia]);
 
+  /* Serie de la gráfica según el periodo elegido. El año se arma sumando meses
+     (la base de datos agrupa por día, semana o mes). */
+  useEffect(() => {
+    let vigente = true;
+    void (async () => {
+      const r =
+        granGrafica === 'dia'
+          ? await sb.rpc('ventas_serie', { p_gran: 'dia', p_periodos: 7 })
+          : await sb.rpc('ventas_serie', { p_gran: 'mes', p_periodos: granGrafica === 'mes' ? 12 : 36 });
+      if (!vigente) return;
+      if (r.error) {
+        setAviso('No se pudieron leer las ventas: ' + r.error.message);
+        setSerie([]);
+        return;
+      }
+      const puntos = (r.data ?? []) as PuntoSerie[];
+      setSerie(granGrafica === 'anio' ? porAnio(puntos) : puntos);
+    })();
+    return () => {
+      vigente = false;
+    };
+  }, [sb, recargarToken, granGrafica]);
+
   const tienda = estadoEn();
   const esHoy = dia === hoy;
   const contra = esHoy ? 'ayer' : 'el día anterior';
@@ -146,7 +197,7 @@ export default function Resumen({
       <div className="pn-kpis">
         <Kpi icono="dinero" tono="rojo" titulo="Ventas del día" valor={kpis?.dia.ventas} formato={dinero} ayer={kpis?.antes.ventas} contra={contra} />
         <Kpi icono="bolsa" tono="rojo" titulo="Pedidos del día" valor={kpis?.dia.pedidos} ayer={kpis?.antes.pedidos} contra={contra} />
-        <Kpi icono="usuarios" tono="ambar" titulo="Clientes únicos" valor={kpis?.dia.clientes} ayer={kpis?.antes.clientes} contra={contra} />
+        <Kpi icono="dinero" tono="ambar" titulo="Ingreso total" valor={ingresoTotal} formato={dinero} nota="Desde el inicio · sin cancelados" />
         <Kpi icono="recibo" tono="verde" titulo="Ticket promedio" valor={kpis?.dia.ticket} formato={dinero} ayer={kpis?.antes.ticket} contra={contra} />
       </div>
 
@@ -154,12 +205,19 @@ export default function Resumen({
         {/* ---------- ventas 7 días ---------- */}
         <section className="pn-tarjeta">
           <header className="pn-tarjeta-cab">
-            <h3>Ventas últimos 7 días</h3>
+            <h3>{TITULO_GRAFICA[granGrafica]}</h3>
+            <div className="vt-seg" role="group" aria-label="Periodo de la gráfica">
+              {(['dia', 'mes', 'anio'] as const).map((g) => (
+                <button key={g} type="button" className={granGrafica === g ? 'active' : undefined} onClick={() => setGranGrafica(g)}>
+                  {ETIQUETA_GRAFICA[g]}
+                </button>
+              ))}
+            </div>
             <button type="button" className="pn-enlace" onClick={() => ir('ventas')}>
               Ver ventas
             </button>
           </header>
-          {serie ? <Grafica serie={serie} /> : <Esqueleto lineas={5} alto="1.6rem" />}
+          {serie ? <Grafica serie={serie} gran={granGrafica} /> : <Esqueleto lineas={5} alto="1.6rem" />}
         </section>
 
         {/* ---------- estado de la tienda ---------- */}
@@ -344,6 +402,7 @@ function Kpi({
   formato,
   ayer,
   contra = 'ayer',
+  nota,
 }: {
   icono: NombreIcono;
   tono: 'rojo' | 'ambar' | 'verde';
@@ -355,6 +414,8 @@ function Kpi({
   ayer?: number;
   /** Cómo se nombra ese día en el texto: "ayer" o "el día anterior". */
   contra?: string;
+  /** Texto fijo en lugar de la comparación (indicadores que no son del día). */
+  nota?: string;
 }) {
   const hoy = valor;
   const v = hoy === undefined || ayer === undefined ? undefined : variacion(hoy, ayer);
@@ -369,19 +430,19 @@ function Kpi({
           {valor === undefined ? <Esqueleto lineas={1} alto="1.6rem" /> : <Contador valor={valor} formato={formato} />}
         </p>
         <p className={`pn-kpi-var${v === null || v === undefined ? '' : v >= 0 ? ' is-sube' : ' is-baja'}`}>
-          {v === undefined ? ' ' : v === null ? `Sin datos ${contra.startsWith('el ') ? 'del ' + contra.slice(3) : 'de ' + contra}` : `${v >= 0 ? '↗' : '↘'} ${Math.abs(v)}% vs ${contra}`}
+          {nota ? nota : v === undefined ? ' ' : v === null ? `Sin datos ${contra.startsWith('el ') ? 'del ' + contra.slice(3) : 'de ' + contra}` : `${v >= 0 ? '↗' : '↘'} ${Math.abs(v)}% vs ${contra}`}
         </p>
       </div>
     </div>
   );
 }
 
-function Grafica({ serie }: { serie: PuntoSerie[] }) {
+function Grafica({ serie, gran }: { serie: PuntoSerie[]; gran: GranGrafica }) {
   const valores = serie.map((p) => Number(p.ingreso));
   const escala = escalaY(Math.max(0, ...valores));
   if (!valores.length) return <p className="empty-state">Sin datos.</p>;
   return (
-    <svg className="pn-grafica" viewBox={`0 0 ${MARCO.ancho} ${MARCO.alto}`} role="img" aria-label="Ventas de los últimos 7 días">
+    <svg className="pn-grafica" viewBox={`0 0 ${MARCO.ancho} ${MARCO.alto}`} role="img" aria-label={TITULO_GRAFICA[gran]}>
       <defs>
         <linearGradient id="pnGrad" x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stopColor="#E53E3E" stopOpacity="0.45" />
@@ -403,6 +464,7 @@ function Grafica({ serie }: { serie: PuntoSerie[] }) {
         const x = coordX(i, serie.length, MARCO);
         const [y, m, d] = String(p.inicio).split('-').map(Number);
         const dia = DIAS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+        const etiqueta = gran === 'dia' ? `${dia} ${d}` : gran === 'mes' ? etiquetaEje(String(p.inicio), 'mes') : String(y);
         return (
           <g key={p.inicio}>
             <circle
@@ -412,10 +474,10 @@ function Grafica({ serie }: { serie: PuntoSerie[] }) {
               className="pn-grafica-punto"
               style={{ '--i': i } as React.CSSProperties}
             >
-              <title>{`${dia} ${d}: ${dinero(Number(p.ingreso))} · ${p.pedidos} pedidos`}</title>
+              <title>{`${etiqueta}: ${dinero(Number(p.ingreso))} · ${p.pedidos} pedidos`}</title>
             </circle>
             <text x={x} y={MARCO.alto - 6} textAnchor="middle" className="pn-grafica-eje">
-              {`${dia} ${d}`}
+              {etiqueta}
             </text>
           </g>
         );
