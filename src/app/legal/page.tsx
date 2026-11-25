@@ -37,7 +37,7 @@ export default function Legal() {
 
       <main className="legal-wrap">
         <h1 className="legal-h1">Términos y Política de Datos</h1>
-        <p className="legal-updated">Última actualización: 30 de octubre de 2026</p>
+        <p className="legal-updated">Última actualización: 25 de noviembre de 2026</p>
 
         <div className="legal-toc">
           <a href="#terminos">Términos y Condiciones</a>
@@ -158,8 +158,14 @@ export default function Legal() {
             el método de pago elegido.
           </p>
           <p>
-            Para saber cuántas personas visitan el sitio usamos una medición anónima: tu navegador guarda un identificador
-            aleatorio que no contiene tu nombre ni tus datos de contacto. No usamos cookies de publicidad.
+            Para saber cuántas personas visitan el sitio, tu navegador guarda un identificador aleatorio que no contiene tu
+            nombre ni tus datos de contacto, y registramos por qué medio llegaste (por ejemplo, un anuncio, una red social o
+            un código QR) y qué platos abriste. Mientras no hagas un pedido, esa información no está ligada a ti. No usamos
+            cookies de publicidad.
+          </p>
+          <p>
+            Si haces un pedido, guardamos junto a él por qué medio llegaste y, si decides responderla, la pregunta
+            &quot;¿Cómo nos conociste?&quot;.
           </p>
 
           <h3 className="legal-h3">3. Finalidad del tratamiento</h3>
@@ -167,13 +173,22 @@ export default function Legal() {
             <li>Recibir, procesar, preparar y entregar tu pedido.</li>
             <li>Contactarte por WhatsApp o teléfono para confirmar o coordinar la entrega.</li>
             <li>Atender peticiones, quejas o reclamos relacionados con tu pedido.</li>
+            <li>
+              Analizar las ventas: saber qué anuncios, redes y platos funcionan, y reconocer a los clientes que vuelven a
+              pedir.
+            </li>
+            <li>
+              Enviarte promociones y novedades por WhatsApp, <strong>solo si lo autorizas</strong> con la casilla opcional
+              del carrito. Puedes pedir que dejemos de enviarlas cuando quieras.
+            </li>
           </ul>
           <p>No vendemos ni compartimos tus datos con terceros con fines comerciales.</p>
 
           <h3 className="legal-h3">4. Autorización</h3>
           <p>
             Al marcar la casilla de autorización y enviar tu pedido, autorizas de forma libre, previa e informada el
-            tratamiento de tus datos personales para las finalidades aquí descritas.
+            tratamiento de tus datos personales para las finalidades aquí descritas, salvo el envío de promociones, que
+            requiere marcar su propia casilla.
           </p>
 
           <h3 className="legal-h3">5. Derechos del titular</h3>

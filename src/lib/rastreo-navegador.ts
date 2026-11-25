@@ -9,7 +9,7 @@
  * `visits` y `events`; nadie sin sesión puede leerlas.
  * ============================================================= */
 
-import { SESION_MS, esBot, origenDe, sesionVigente } from './rastreo';
+import { SESION_MS, esBot, leerToques, origenDe, sesionVigente, sumarToque, toqueDe, type Toques } from './rastreo';
 
 const URL_BASE = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const CLAVE = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
@@ -17,6 +17,7 @@ const CLAVE = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
 const VID = 'porton_vid'; // navegador → "personas", no caduca
 const SID = 'porton_sid'; // visita → caduca a los 30 min
 const SID_TS = 'porton_sid_ts';
+const TOQUES = 'porton_toques'; // por qué red/campaña/anuncio llegó (ver rastreo.ts)
 
 function uuid(): string {
   try {
@@ -71,13 +72,52 @@ function identidad(): { vid: string; sid: string } | null {
   }
 }
 
-const noCuenta = () => esBot(navigator.userAgent || '', navigator.webdriver === true);
+/* Dispositivos del equipo (caja, celulares de prueba) se excluyen con
+   localStorage.porton_no_contar = '1', para no inflar las visitas. */
+function excluido(): boolean {
+  try {
+    return localStorage.getItem('porton_no_contar') === '1';
+  } catch {
+    return false;
+  }
+}
+
+const noCuenta = () => excluido() || esBot(navigator.userAgent || '', navigator.webdriver === true);
+
+/** Toques guardados (por dónde llegó la persona). Nunca lanza. */
+export function toquesGuardados(): Toques {
+  try {
+    return leerToques(localStorage.getItem(TOQUES));
+  } catch {
+    return { primero: null, ultimo: null };
+  }
+}
+
+/** Lo que acompaña a cada evento: la visita y el último origen. Sin datos personales. */
+function contexto(id: { vid: string; sid: string } | null): Record<string, unknown> {
+  const u = toquesGuardados().ultimo;
+  return {
+    vid: id?.vid ?? null,
+    sid: id?.sid ?? null,
+    fuente: u?.fuente ?? null,
+    campana: u?.campana ?? null,
+    anuncio: u?.anuncio ?? null,
+  };
+}
 
 /** Una carga de página. */
 export function registrarVisita(): void {
   if (noCuenta()) return;
   const id = identidad();
   if (!id) return;
+  try {
+    const nuevo = toqueDe(document.referrer, location.hostname, location.search, Date.now());
+    localStorage.setItem(TOQUES, JSON.stringify(sumarToque(toquesGuardados(), nuevo)));
+  } catch {
+    /* sin almacenamiento: el pedido queda "Sin dato", nada más */
+  }
+  // Entrada del embudo con su origen (la tabla `visits` solo guarda la red).
+  enviar('events', { type: 'page_view', meta: contexto(id) });
   enviar('visits', {
     visitor_id: id.vid,
     session_id: id.sid,
@@ -86,13 +126,12 @@ export function registrarVisita(): void {
   });
 }
 
-export type TipoEvento = 'add_to_cart' | 'checkout_opened' | 'order_sent' | 'whatsapp_click';
+export type TipoEvento = 'add_to_cart' | 'checkout_opened' | 'order_sent' | 'whatsapp_click' | 'view_item';
 
 /** Un paso del embudo. También refresca la visita (la actividad la mantiene viva). */
 export function registrarEvento(tipo: TipoEvento, meta?: Record<string, unknown>): void {
   if (noCuenta()) return;
-  identidad();
-  enviar('events', { type: tipo, meta: meta ?? null });
+  enviar('events', { type: tipo, meta: { ...contexto(identidad()), ...(meta ?? {}) } });
 }
 
 export { SESION_MS };

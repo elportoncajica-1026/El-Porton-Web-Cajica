@@ -2,6 +2,7 @@ import { after, NextResponse } from 'next/server';
 import { obtenerMenu } from '@/lib/menu-servidor';
 import { validarPedido } from '@/lib/precio';
 import { direccionAGuardar, esTipoPedido } from '@/lib/tipo-pedido';
+import { origenDePedido } from '@/lib/rastreo';
 import { supabaseRest } from '@/lib/supabase';
 import { CANAL_PEDIDOS } from '@/lib/vigia-pedidos';
 import {
@@ -76,8 +77,9 @@ const rechazoPorExceso = () =>
  * Guarda el pedido con reintentos y espera creciente (300ms, 900ms).
  * Nunca lanza: devuelve el error para que quien llama decida.
  */
-async function guardarPedido(fila: unknown): Promise<Guardado> {
+async function guardarPedido(fila: Record<string, unknown>): Promise<Guardado> {
   let ultimo = 'sin intentos';
+  let cuerpo = fila;
 
   for (let intento = 1; intento <= INTENTOS_INSERT; intento++) {
     try {
@@ -85,7 +87,7 @@ async function guardarPedido(fila: unknown): Promise<Guardado> {
         '/rest/v1/orders',
         {
           method: 'POST',
-          body: JSON.stringify(fila),
+          body: JSON.stringify(cuerpo),
           headers: { Prefer: 'return=representation' },
         },
         'servidor',
@@ -97,6 +99,17 @@ async function guardarPedido(fila: unknown): Promise<Guardado> {
       }
 
       ultimo = `HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`;
+
+      // Mientras no se corra db/crecimiento-setup.sql la columna `origen`
+      // no existe: el pedido se guarda sin ella antes que perderlo.
+      if (res.status < 500 && 'origen' in cuerpo && /origen/.test(ultimo)) {
+        const { origen: _sinOrigen, ...resto } = cuerpo;
+        void _sinOrigen;
+        cuerpo = resto;
+        console.warn('[pedidos] falta la columna orders.origen (db/crecimiento-setup.sql); se guarda sin origen.');
+        intento--;
+        continue;
+      }
 
       // 4xx = la petición está mal formada; reintentar daría igual.
       // Solo se reintentan los fallos del servidor (5xx) y los de red.
@@ -213,6 +226,7 @@ export async function POST(req: Request) {
   const entrantes = cuerpo.items as Record<string, unknown>[];
   const fila = {
     ...cliente,
+    origen: origenDePedido(cuerpo.origen),
     subtotal: r.subtotal,
     items: r.lineas.map((l, i) => ({
       id: l.id,

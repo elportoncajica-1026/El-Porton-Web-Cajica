@@ -23,7 +23,8 @@ import { CLAVE_FORMULARIO, FORMULARIO_VACIO, type DatosFormulario } from '@/type
 import { useCarrito } from '@/estado/carrito';
 import { camposIncompletos, detallesDe, formatearMiles, leerFormulario } from '@/lib/formulario';
 import { construirMensaje, urlWhatsApp, type LineaPedido } from '@/lib/whatsapp';
-import { registrarEvento } from '@/lib/rastreo-navegador';
+import { registrarEvento, toquesGuardados } from '@/lib/rastreo-navegador';
+import { OPCIONES_CONOCIO, type Conocio } from '@/lib/rastreo';
 import { TIPO_PEDIDO, TIPOS_EN_CARRITO, seOfreceEnCarrito } from '@/lib/tipo-pedido';
 import { TIEMPOS_POR_DEFECTO, textoAviso, type Tiempos } from '@/lib/tiempos';
 import { CONTACTO, RESENA_GOOGLE, SEGUIR } from '@/data/portada';
@@ -43,6 +44,9 @@ export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: T
   const [abierto, setAbierto] = useState(false);
   const [datos, setDatos] = useState<DatosFormulario>(FORMULARIO_VACIO);
   const [consiente, setConsiente] = useState(false);
+  /* Opcionales: no frenan el pedido. */
+  const [conocio, setConocio] = useState<Conocio | ''>('');
+  const [promos, setPromos] = useState(false);
   const [intento, setIntento] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
@@ -152,7 +156,12 @@ export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: T
       const res = await fetch('/api/pedidos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...datos, items, sitio_web: trampa.current?.value ?? '' }),
+        body: JSON.stringify({
+          ...datos,
+          items,
+          sitio_web: trampa.current?.value ?? '',
+          origen: { ...toquesGuardados(), conocio: conocio || null, promos },
+        }),
       });
       const j = await res.json();
 
@@ -465,16 +474,42 @@ export default function Carrito({ tiempos = TIEMPOS_POR_DEFECTO }: { tiempos?: T
                   </label>
                 )}
 
+                <label className="cart-field">
+                  <span>¿Cómo nos conociste? (opcional)</span>
+                  <select
+                    className="cart-select"
+                    name="conocio"
+                    value={conocio}
+                    onChange={(e) => setConocio(e.target.value as Conocio | '')}
+                  >
+                    <option value="">Prefiero no decir</option>
+                    {OPCIONES_CONOCIO.map((o) => (
+                      <option key={o.valor} value={o.valor}>
+                        {o.texto}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
                 <label className={`cart-consent${intento && !consiente ? ' field-error' : ''}`}>
                   <input type="checkbox" checked={consiente} onChange={(e) => setConsiente(e.target.checked)} />
                   <span>
                     Autorizo a <strong>El Portón Cajicá</strong> a tratar mis datos personales (nombre, teléfono y
-                    dirección) con la única finalidad de gestionar, entregar y hacer seguimiento a este pedido,
-                    conforme a la Ley 1581 de 2012. Puedo pedir su consulta, actualización o supresión en cualquier
-                    momento por WhatsApp.{' '}
+                    dirección) para gestionar, entregar y hacer seguimiento a este pedido, y para registrar por qué
+                    medio llegué a la página (por ejemplo, un anuncio o una red social) con el fin de analizar las
+                    ventas, conforme a la Ley 1581 de 2012. Puedo pedir su consulta, actualización o supresión en
+                    cualquier momento por WhatsApp.{' '}
                     <a href="/legal#datos" target="_blank" rel="noopener">
                       Ver política de datos
                     </a>
+                  </span>
+                </label>
+
+                <label className="cart-consent cart-consent--opcional">
+                  <input type="checkbox" checked={promos} onChange={(e) => setPromos(e.target.checked)} />
+                  <span>
+                    Quiero recibir promociones y novedades de El Portón por WhatsApp. <em>(Opcional: puedo pedir
+                    que dejen de enviarlas cuando quiera.)</em>
                   </span>
                 </label>
 

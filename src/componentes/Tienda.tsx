@@ -25,6 +25,7 @@ import { TIEMPOS_POR_DEFECTO, type Tiempos } from '@/lib/tiempos';
 import BotonPreguntar from './BotonPreguntar';
 import Catalogo from './Catalogo';
 import ModalProducto from './ModalProducto';
+import { registrarEvento } from '@/lib/rastreo-navegador';
 import Favoritos from './Favoritos';
 import BannerCombo from './BannerCombo';
 import { ComoPedir, EncabezadoCarta } from './Secciones';
@@ -42,6 +43,12 @@ export default function Tienda({
   const [abiertoId, setAbiertoId] = useState<string | null>(null);
   const abierto = abiertoId ? (menu.find((p) => p.id === abiertoId) ?? null) : null;
 
+  /* Abrir un plato = "vio un plato" (embudo y platos que se miran y no se piden). */
+  function abrirPlato(id: string | null) {
+    setAbiertoId(id);
+    if (id) registrarEvento('view_item', { id });
+  }
+
   const pestanas = useMemo(() => categoriasConProductos(menu, categorias), [menu, categorias]);
   const [catActiva, setCatActiva] = useState<CategoriaId>(() => pestanas[0]?.key ?? categorias[0].key);
 
@@ -52,7 +59,7 @@ export default function Tienda({
 
   return (
     <>
-      <Favoritos menu={menu} onPersonalizar={setAbiertoId} />
+      <Favoritos menu={menu} onPersonalizar={abrirPlato} />
       <BannerCombo onVer={irACombo} />
 
       {/* Antes de la carta: el cliente ve cómo se pide antes de elegir. */}
@@ -69,7 +76,7 @@ export default function Tienda({
         pestanas={pestanas}
         catActiva={catActiva}
         onCambiarCategoria={setCatActiva}
-        onPersonalizar={setAbiertoId}
+        onPersonalizar={abrirPlato}
       />
 
       <ModalProducto item={abierto} onCerrar={() => setAbiertoId(null)} />

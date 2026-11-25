@@ -32,6 +32,7 @@ import Pedidos from '@/componentes/admin/Pedidos';
 import Analitica from '@/componentes/admin/Analitica';
 import Visitas from '@/componentes/admin/Visitas';
 import Origenes from '@/componentes/admin/Origenes';
+import Crecimiento from '@/componentes/admin/Crecimiento';
 import PreciosPos from '@/componentes/admin/PreciosPos';
 import Tiempos from '@/componentes/admin/Tiempos';
 import Menu from '@/componentes/admin/Menu';
@@ -52,6 +53,7 @@ const TITULOS: Record<Seccion, { titulo: string; sub: string }> = {
   tiempos: { titulo: 'Tiempos de entrega', sub: 'Lo que el carrito promete: domicilio y recoger en el local' },
   ventas: { titulo: 'Ventas', sub: 'Ingresos, productos más vendidos y exportación' },
   visitas: { titulo: 'Visitas', sub: 'Cuántas personas entran a la web' },
+  crecimiento: { titulo: 'Crecimiento', sub: 'Qué funciona, cómo funciona y qué no' },
 };
 
 const GRUPOS: { titulo?: string; items: { id: Seccion; texto: string; icono: NombreIcono }[] }[] = [
@@ -70,6 +72,7 @@ const GRUPOS: { titulo?: string; items: { id: Seccion; texto: string; icono: Nom
     items: [
       { id: 'ventas', texto: 'Ventas', icono: 'grafica' },
       { id: 'visitas', texto: 'Visitas', icono: 'ojo' },
+      { id: 'crecimiento', texto: 'Crecimiento', icono: 'crecimiento' },
     ],
   },
 ];
@@ -416,6 +419,7 @@ export default function PanelAdmin() {
                 <Origenes recargarToken={recargarToken} />
               </>
             )}
+            {seccion === 'crecimiento' && <Crecimiento recargarToken={recargarToken} />}
           </main>
         </div>
 

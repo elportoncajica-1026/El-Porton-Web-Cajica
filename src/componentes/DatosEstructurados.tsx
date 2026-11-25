@@ -41,7 +41,12 @@ export default function DatosEstructurados({ menu }: { menu: ProductoMenu[] }) {
     },
     areaServed: { '@type': 'City', name: 'Cajicá' },
     hasMap: 'https://maps.app.goo.gl/B1Yka6GRnqEvMZ6u6',
-    sameAs: ['https://instagram.com/elportoncajica', 'https://maps.app.goo.gl/B1Yka6GRnqEvMZ6u6'],
+    sameAs: [
+      'https://instagram.com/elportoncajica',
+      'https://www.tiktok.com/@el.porton.cajica',
+      'https://www.facebook.com/elportoncajica',
+      'https://maps.app.goo.gl/B1Yka6GRnqEvMZ6u6',
+    ],
     openingHoursSpecification: [
       {
         '@type': 'OpeningHoursSpecification',

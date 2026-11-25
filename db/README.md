@@ -24,6 +24,8 @@ Si algún día hay que reconstruir el proyecto desde cero, hay que correrlos
 
 **Los 7 están aplicados.**
 
+**Pendiente de aplicar:** `crecimiento-setup.sql` (columna `orders.origen` para el panel "Crecimiento"). La web funciona igual sin ella: el pedido se guarda, solo que sin origen.
+
 ### Atajo: `reconstruir-todo.sql`
 
 Une los 7 scripts de la tabla en el orden correcto, con un único marcador

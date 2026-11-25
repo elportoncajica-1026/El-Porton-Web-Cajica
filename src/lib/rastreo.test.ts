@@ -1,5 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { SESION_MS, agruparPorOrigen, esBot, limpiarEtiqueta, origenDe, sesionVigente } from './rastreo';
+import {
+  DIRECTO,
+  SESION_MS,
+  VERSION_AUTORIZACION,
+  agruparPorOrigen,
+  esBot,
+  leerToques,
+  limpiarEtiqueta,
+  nombreFuente,
+  origenDe,
+  origenDePedido,
+  sesionVigente,
+  sumarToque,
+  toqueDe,
+} from './rastreo';
 
 describe('sesionVigente', () => {
   const ahora = 1_000_000_000;
@@ -89,5 +103,49 @@ describe('agruparPorOrigen', () => {
   });
   it('lista vacía → vacío', () => {
     expect(agruparPorOrigen([])).toEqual([]);
+  });
+});
+
+describe('atribución', () => {
+  const host = 'www.elportoncajica.com';
+  it('lee red, campaña y anuncio del enlace', () => {
+    const t = toqueDe('', host, '?utm_source=meta&utm_campaign=s1-angulos&utm_content=a-antojo-v1', 5);
+    expect(t).toEqual({ fuente: 'meta', campana: 's1-angulos', anuncio: 'a-antojo-v1', ts: 5 });
+  });
+  it('sin etiqueta ni referrer externo es directo', () => {
+    expect(toqueDe('', host, '', 1).fuente).toBe(DIRECTO);
+    expect(toqueDe('https://www.elportoncajica.com/', host, '', 1).fuente).toBe(DIRECTO);
+  });
+  it('el primero no cambia y una llegada directa no borra el último anuncio', () => {
+    const anuncio = toqueDe('', host, '?utm_source=meta&utm_content=a', 1);
+    const directo = toqueDe('', host, '', 2);
+    const tras = sumarToque(sumarToque({ primero: null, ultimo: null }, anuncio), directo);
+    expect(tras).toEqual({ primero: anuncio, ultimo: anuncio });
+    const tiktok = toqueDe('https://www.tiktok.com/', host, '', 3);
+    expect(sumarToque(tras, tiktok)).toEqual({ primero: anuncio, ultimo: tiktok });
+  });
+  it('una primera llegada directa queda como primera y última', () => {
+    const d = toqueDe('', host, '', 1);
+    expect(sumarToque({ primero: null, ultimo: null }, d)).toEqual({ primero: d, ultimo: d });
+  });
+  it('lee toques guardados rotos sin fallar', () => {
+    expect(leerToques('{malo')).toEqual({ primero: null, ultimo: null });
+    expect(leerToques('null')).toEqual({ primero: null, ultimo: null });
+    expect(leerToques(JSON.stringify({ primero: { fuente: '<script>' } })).primero?.fuente).toBe('script');
+  });
+  it('el servidor limpia el origen del pedido', () => {
+    const o = origenDePedido({ conocio: 'hackeo', promos: 'si', autorizacion: 'vieja', ultimo: { fuente: 'meta', ts: 1 } });
+    expect(o.conocio).toBeNull();
+    expect(o.promos).toBe(false);
+    expect(o.autorizacion).toBe(VERSION_AUTORIZACION);
+    expect(o.ultimo?.fuente).toBe('meta');
+    expect(origenDePedido({ conocio: 'tiktok', promos: true })).toMatchObject({ conocio: 'tiktok', promos: true });
+    expect(origenDePedido(null).primero).toBeNull();
+  });
+  it('nombra las fuentes', () => {
+    expect(nombreFuente('instagram.com')).toBe('Instagram');
+    expect(nombreFuente('meta')).toBe('Meta');
+    expect(nombreFuente(DIRECTO)).toBe('Directo');
+    expect(nombreFuente(null)).toBe('Sin dato');
   });
 });

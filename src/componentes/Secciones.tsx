@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { BRAND, TESTIMONIOS } from '@/data/menu';
 import type { Testimonio } from '@/types/menu';
-import { CONTACTO, METODOS_PAGO } from '@/data/portada';
+import { CONTACTO, METODOS_PAGO, SEGUIR } from '@/data/portada';
 import { Icono } from './Iconos';
 
 /* =============================================================
@@ -219,6 +219,8 @@ const IconoUbicacion = (
   </>
 );
 
+const NOMBRE_RED = { instagram: 'Instagram', tiktok: 'TikTok', facebook: 'Facebook' } as const;
+
 export function Contacto() {
   return (
     <section id="contacto" className="contacto reveal">
@@ -257,20 +259,20 @@ export function Contacto() {
             Pídelo por WhatsApp hasta las <strong style={{ color: '#fff' }}>9:40 PM</strong>.
           </ItemInfo>
 
-          <ItemInfo
-            etiqueta="Instagram"
-            icono={
-              <>
-                <rect x="3" y="3" width="18" height="18" rx="5" />
-                <circle cx="12" cy="12" r="4" />
-                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-              </>
-            }
-          >
-            <a href="https://instagram.com/elportoncajica" target="_blank" rel="noopener">
-              @elportoncajica
-            </a>
-          </ItemInfo>
+          {/* Las redes salen de SEGUIR (data/portada.ts): solo URLs confirmadas. */}
+          {SEGUIR.map((r) => (
+            <div className="info-item" key={r.clave}>
+              <Icono nombre={r.icono} className="info-icon" />
+              <div className="info-text">
+                <span className="info-label">{NOMBRE_RED[r.clave]}</span>
+                <span className="info-value">
+                  <a href={r.url} target="_blank" rel="noopener">
+                    {r.detalle}
+                  </a>
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="contacto-actions">
@@ -396,9 +398,11 @@ export function PieDePagina() {
           <p className="hw-solo hw-saludo">🎃 ¡Feliz Halloween de parte de todo El Portón!</p>
           <p className="nv-solo nv-saludo">🎄 ¡Feliz Navidad de parte de todo El Portón!</p>
           <div className="rd-redes">
-            <a href={CONTACTO.instagram} target="_blank" rel="noopener" aria-label="Instagram de El Portón">
-              <Icono nombre="instagram" size={18} />
-            </a>
+            {SEGUIR.map((r) => (
+              <a key={r.clave} href={r.url} target="_blank" rel="noopener" aria-label={`${NOMBRE_RED[r.clave]} de El Portón`}>
+                <Icono nombre={r.icono} size={18} />
+              </a>
+            ))}
             <a href={whatsapp} target="_blank" rel="noopener" aria-label="WhatsApp de El Portón">
               <Icono nombre="whatsapp" size={18} />
             </a>

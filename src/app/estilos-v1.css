@@ -1454,6 +1454,10 @@ html { scroll-behavior: smooth; }
 .cart-consent span { font-size: 0.75rem; color: #a1a1aa; line-height: 1.5; }
 .cart-consent a { color: var(--rojo); text-decoration: underline; }
 .cart-consent.field-error { border-color: #E53E3E; background: rgba(229,62,62,0.06); }
+.cart-consent--opcional { margin-top: 0.6rem; }
+.cart-consent em { font-style: normal; color: #8b8b94; }
+.cart-select { background: #0e0e11; border: 1px solid rgba(255,255,255,0.12); border-radius: 0.6rem; padding: 0.7rem 0.8rem; color: #fff; font: inherit; font-size: 0.95rem; }
+.cart-select:focus { outline: none; border-color: var(--rojo); }
 
 .pago-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
 .pago-opts.field-error { outline: 1.5px solid #E53E3E; outline-offset: 2px; border-radius: 0.6rem; }
