@@ -283,3 +283,6 @@ button.pago-opt {
 .opt-card.is-disabled { opacity: 0.38; cursor: not-allowed; }
 .opt-card.is-disabled:hover { border-color: rgba(255,255,255,0.08); }
 .opt-card-no { display: block; margin-top: 0.15rem; font-size: 0.7rem; color: #a1a1aa; }
+
+/* Precio centrado bajo la foto en las opciones con foto (p. ej. tamaños de mazorcada). */
+.choices-fotos .opt-card-price { text-align: center; }

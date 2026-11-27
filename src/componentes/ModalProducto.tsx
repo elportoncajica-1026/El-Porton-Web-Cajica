@@ -141,13 +141,18 @@ export default function ModalProducto({
         <div className="modal-body">
           {/* ---- opciones de precio ---- */}
           {item.options.length > 1 && (
-            <Seccion titulo="Elige una opción">
+            <Seccion titulo="Elige una opción" clase={item.optionImgs ? 'choices-fotos' : ''}>
               {item.options.map((o, i) => (
                 <Tarjeta
                   key={o.label}
                   activa={sel.opcion === i}
                   onClick={() => cambiar({ opcion: i, elecciones: corregirElecciones(item, i, sel.elecciones) })}
                 >
+                  {item.optionImgs?.[o.label] && (
+                    <span className="opt-card-foto">
+                      <Image src={`/${item.optionImgs[o.label].replace(/^\//, '')}`} alt="" fill sizes="(max-width: 480px) 30vw, 160px" />
+                    </span>
+                  )}
                   <span className="opt-card-label">{o.label}</span>
                   <span className="opt-card-price">{fmt(o.price)}</span>
                 </Tarjeta>

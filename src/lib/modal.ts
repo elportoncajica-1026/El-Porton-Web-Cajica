@@ -35,7 +35,9 @@ export type Seleccion = {
 export const adicionesDe = (cat: CategoriaId) => ADICIONES.filter((a) => a.cats.includes(cat));
 
 /** Foto de la opción elegida en el primer selector, si el producto la tiene. */
-export function fotoDeEleccion(item: ProductoMenu, sel: { elecciones: number[] }): string | undefined {
+export function fotoDeEleccion(item: ProductoMenu, sel: { elecciones: number[]; opcion?: number }): string | undefined {
+  const porOpcion = item.optionImgs?.[item.options[sel.opcion ?? 0]?.label ?? ''];
+  if (porOpcion) return porOpcion;
   const ch = item.choices?.[0];
   if (!ch || !item.choiceImgs) return undefined;
   return item.choiceImgs[ch.options[sel.elecciones[0] ?? 0] ?? ch.options[0]];

@@ -83,6 +83,8 @@ export type ProductoMenu = {
    * todas las combinaciones valen.
    */
   disponibilidad?: Record<string, string[]>;
+  /** Foto por tamaño u opción de `options` (p. ej. media mazorcada y completa). */
+  optionImgs?: Record<string, string>;
 
   /**
    * OJO: esta clave NO existe en el menú del código — solo la añade
